@@ -60,7 +60,12 @@ const BgEffectOption = ({ effect, isActive, onPress, theme }) => (
 );
 
 const SettingsScreen = () => {
-  const { theme, toggleTheme, themeMode, setPalette, activePalette, palettes, bgEffect, setBgEffect, backgroundEffects } = useTheme();
+  const { 
+    theme, toggleTheme, themeMode, 
+    setPalette, activePalette, palettes, 
+    bgEffect, setBgEffect, backgroundEffects,
+    hapticsEnabled, toggleHaptics 
+  } = useTheme();
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -104,7 +109,7 @@ const SettingsScreen = () => {
             </ScrollView>
           </View>
 
-          <Text style={[styles.sectionTitle, { color: theme.textSec, marginTop: 15 }]}>GÖRÜNÜM</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textSec, marginTop: 15 }]}>GÖRÜNÜM VE DENEYİM</Text>
           <View style={[styles.section, { backgroundColor: theme.card }]}>
             <SettingsItem
               theme={theme}
@@ -112,6 +117,13 @@ const SettingsScreen = () => {
               label="Karanlık Mod"
               value={themeMode === 'dark'}
               onValueChange={toggleTheme}
+            />
+            <SettingsItem
+              theme={theme}
+              icon="finger-print"
+              label="Haptik Geri Bildirim"
+              value={hapticsEnabled}
+              onValueChange={toggleHaptics}
             />
           </View>
 

@@ -105,6 +105,7 @@ const BASE_THEMES = {
 const STORAGE_KEY_MODE = '@app_theme_mode';
 const STORAGE_KEY_PALETTE = '@app_theme_palette';
 const STORAGE_KEY_BG_EFFECT = '@app_theme_bg_effect';
+const STORAGE_KEY_HAPTICS = '@app_theme_haptics';
 
 export const BACKGROUND_EFFECTS = {
   nebula: { id: 'nebula', name: 'Nebula', icon: 'planet' },
@@ -115,6 +116,10 @@ export const BACKGROUND_EFFECTS = {
   cube: { id: 'cube', name: 'Küp', icon: 'cube' },
   scanline: { id: 'scanline', name: 'Scanline', icon: 'pulse' },
   pulse: { id: 'pulse', name: 'Pulse', icon: 'radio-button-on' },
+  particles: { id: 'particles', name: 'Parçacıklar', icon: 'snow' },
+  matrixRain: { id: 'matrixRain', name: 'Matrix', icon: 'code-download' },
+  dna: { id: 'dna', name: 'DNA', icon: 'infinite' },
+  retroPC: { id: 'retroPC', name: 'Eski PC', icon: 'desktop' },
   none: { id: 'none', name: 'Kapalı', icon: 'close-circle' },
 };
 
@@ -122,6 +127,7 @@ export const ThemeProvider = ({ children }) => {
   const [themeMode, setThemeMode] = useState('dark');
   const [activePalette, setActivePalette] = useState('default');
   const [bgEffect, setBgEffect] = useState('nebula');
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
   // Merge Base Theme + Active Palette
   const theme = {
@@ -138,10 +144,12 @@ export const ThemeProvider = ({ children }) => {
       const storedMode = await AsyncStorage.getItem(STORAGE_KEY_MODE);
       const storedPalette = await AsyncStorage.getItem(STORAGE_KEY_PALETTE);
       const storedBgEffect = await AsyncStorage.getItem(STORAGE_KEY_BG_EFFECT);
+      const storedHaptics = await AsyncStorage.getItem(STORAGE_KEY_HAPTICS);
       
       if (storedMode) setThemeMode(storedMode);
       if (storedPalette && PALETTES[storedPalette]) setActivePalette(storedPalette);
       if (storedBgEffect && BACKGROUND_EFFECTS[storedBgEffect]) setBgEffect(storedBgEffect);
+      if (storedHaptics !== null) setHapticsEnabled(JSON.parse(storedHaptics));
     } catch (e) {
       console.log('Failed to load theme settings', e);
     }
@@ -151,6 +159,12 @@ export const ThemeProvider = ({ children }) => {
     const newMode = themeMode === 'dark' ? 'light' : 'dark';
     setThemeMode(newMode);
     await AsyncStorage.setItem(STORAGE_KEY_MODE, newMode);
+  };
+
+  const toggleHaptics = async () => {
+    const newValue = !hapticsEnabled;
+    setHapticsEnabled(newValue);
+    await AsyncStorage.setItem(STORAGE_KEY_HAPTICS, JSON.stringify(newValue));
   };
 
   const setPalette = async (paletteId) => {
@@ -177,7 +191,9 @@ export const ThemeProvider = ({ children }) => {
       palettes: PALETTES,
       bgEffect,
       setBgEffect: setBackgroundEffect,
-      backgroundEffects: BACKGROUND_EFFECTS
+      backgroundEffects: BACKGROUND_EFFECTS,
+      hapticsEnabled,
+      toggleHaptics
     }}>
       <StatusBar barStyle={theme.statusBarStyle} backgroundColor={theme.bg} />
       {children}

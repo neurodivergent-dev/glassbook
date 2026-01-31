@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { Alert } from 'react-native';
+import { useTheme } from './ThemeContext';
 
 const NotesContext = createContext();
 
@@ -9,6 +10,7 @@ const STORAGE_KEY = '@premium_notes_v3';
 
 export const NotesProvider = ({ children }) => {
   const [notes, setNotes] = useState([]);
+  const { hapticsEnabled } = useTheme();
 
   useEffect(() => {
     load();
@@ -24,7 +26,9 @@ export const NotesProvider = ({ children }) => {
   };
 
   const saveNote = async (note) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (hapticsEnabled) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
     const updated = notes.some(n => n.id === note.id)
       ? notes.map(n => n.id === note.id ? note : n)
       : [note, ...notes];
@@ -34,7 +38,9 @@ export const NotesProvider = ({ children }) => {
   };
 
   const deleteNote = (id) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    if (hapticsEnabled) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
     Alert.alert("Sil", "Bu notu silmek istiyor musun?", [
       { text: "İptal", style: "cancel" },
       { text: "Sil", style: "destructive", onPress: async () => {
