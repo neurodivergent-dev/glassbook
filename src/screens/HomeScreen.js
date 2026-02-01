@@ -13,11 +13,17 @@ import NoteCard from '../components/NoteCard';
 import { SearchBar, CategoryPills } from '../components/UIComponents';
 import NoteEditorModal from '../components/NoteEditorModal';
 import EmptyState from '../components/EmptyState';
+import TerminalScreen from './TerminalScreen';
 
 const HomeScreen = () => {
   const { notes, saveNote, deleteNote } = useNotes();
-  const { theme } = useTheme();
+  const { theme, terminalModeEnabled } = useTheme();
   const navigation = useNavigation();
+  
+  if (terminalModeEnabled) {
+    return <TerminalScreen />;
+  }
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   

@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import { Text, TouchableOpacity, StyleSheet, Dimensions, Animated, View, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 
@@ -25,7 +24,7 @@ const NoteCard = ({ item, onPress, index }) => {
       delay: index * 50,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [index]);
 
   const categoryColor = CATEGORIES.find(c => c.id === item.category)?.color || theme.primary;
 
@@ -37,7 +36,6 @@ const NoteCard = ({ item, onPress, index }) => {
         style={styles.cardWrapper}
       >
         <View style={[styles.card, { borderColor: theme.cardBorder }]}>
-          {/* Şeffaf arka plan katmanı */}
           <View style={[StyleSheet.absoluteFill, { 
             backgroundColor: themeMode === 'dark' 
               ? 'rgba(30, 30, 35, 0.5)' 
@@ -45,34 +43,32 @@ const NoteCard = ({ item, onPress, index }) => {
             borderRadius: 24,
           }]} />
           
-                  <View style={styles.contentContainer}>
-                    {/* Decorative Corner Lines */}
-                    <View style={[styles.cornerMarker, { top: 0, left: 0, borderTopWidth: 2, borderLeftWidth: 2, borderColor: categoryColor + '60' }]} />
-                    <View style={[styles.cornerMarker, { top: 0, right: 0, borderTopWidth: 2, borderRightWidth: 2, borderColor: categoryColor + '60' }]} />
-                    <View style={[styles.cornerMarker, { bottom: 0, left: 0, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: categoryColor + '60' }]} />
-                    <View style={[styles.cornerMarker, { bottom: 0, right: 0, borderBottomWidth: 2, borderRightWidth: 2, borderColor: categoryColor + '60' }]} />
-          
-                    {/* Left Edge Accent */}
-                    <View style={[styles.leftAccent, { backgroundColor: categoryColor }]} />
-          
-                    {/* Header */}
-                    <View style={styles.cardHeader}>
-                      {item.isPinned && <Ionicons name="pin" size={12} color={theme.warning} style={{ marginRight: 5 }} />}
-                      <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{item.title}</Text>
-                      <View style={[styles.dot, { backgroundColor: categoryColor }]} />
-                    </View>
-          
-                    {/* Content */}
-                    <Text style={[styles.cardPreview, { color: theme.textSec }, item.isLocked && { opacity: 0.3, letterSpacing: 3 }]} numberOfLines={5}>
-                      {item.isLocked ? '••••••••••••••••' : item.content}
-                    </Text>
-          
-                    {/* Footer */}
-                    <View style={styles.cardFooter}>
-                      <Text style={[styles.cardDate, { color: theme.textSec + '80' }]}>{item.date}</Text>
-                      {item.isLocked && <Ionicons name="lock-closed" size={10} color={theme.textSec} />}
-                    </View>
-                  </View>        </View>
+          <View style={styles.contentContainer}>
+            <View style={[styles.cornerMarker, { top: 0, left: 0, borderTopWidth: 2, borderLeftWidth: 2, borderColor: categoryColor + '60' }]} />
+            <View style={[styles.cornerMarker, { top: 0, right: 0, borderTopWidth: 2, borderRightWidth: 2, borderColor: categoryColor + '60' }]} />
+            <View style={[styles.cornerMarker, { bottom: 0, left: 0, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: categoryColor + '60' }]} />
+            <View style={[styles.cornerMarker, { bottom: 0, right: 0, borderBottomWidth: 2, borderRightWidth: 2, borderColor: categoryColor + '60' }]} />
+  
+            <View style={[styles.leftAccent, { backgroundColor: categoryColor }]} />
+  
+            <View style={styles.cardHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                {!!item.isPinned && <Ionicons name="pin" size={12} color={theme.warning} style={{ marginRight: 5 }} />}
+                <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{item.title}</Text>
+              </View>
+              <View style={[styles.dot, { backgroundColor: categoryColor }]} />
+            </View>
+  
+            <Text style={[styles.cardPreview, { color: theme.textSec }, !!item.isLocked && { opacity: 0.3, letterSpacing: 3 }]} numberOfLines={5}>
+              {!!item.isLocked ? '••••••••••••••••' : item.content}
+            </Text>
+  
+            <View style={styles.cardFooter}>
+              <Text style={[styles.cardDate, { color: theme.textSec + '80' }]}>{item.date}</Text>
+              {!!item.isLocked && <Ionicons name="lock-closed" size={10} color={theme.textSec} />}
+            </View>
+          </View>
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -131,7 +127,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     flex: 1,
-    marginRight: 5,
   },
   dot: {
     width: 6,

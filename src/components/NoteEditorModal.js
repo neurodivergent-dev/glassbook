@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, ScrollView, Share } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, ScrollView, Share, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -40,6 +40,21 @@ const NoteEditorModal = ({ visible, onClose, note, onSave, onDelete }) => {
     }
   }, [note, visible]);
 
+  const handleClose = () => {
+    if (!isReadingMode && (title.trim().length > 0 || content.trim().length > 0)) {
+      Alert.alert(
+        "Kaydedilmemiş Değişiklikler",
+        "Çıkarsanız değişiklikleriniz kaybolacak.",
+        [
+          { text: "Vazgeç", style: "cancel" },
+          { text: "Çık", style: "destructive", onPress: onClose }
+        ]
+      );
+    } else {
+      onClose();
+    }
+  };
+
   const handleSave = () => {
     onSave({
       id: note ? note.id : Date.now().toString(),
@@ -62,10 +77,13 @@ const NoteEditorModal = ({ visible, onClose, note, onSave, onDelete }) => {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={[styles.modalBg, { backgroundColor: theme.modalBg }]}>
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        style={[styles.modalBg, { backgroundColor: theme.modalBg }]}
+      >
         <View style={[styles.modalHeader, { borderBottomColor: theme.cardBorder }]}>
-          <TouchableOpacity onPress={onClose}>
+          <TouchableOpacity onPress={handleClose}>
             <Text style={[styles.modalBtnText, { color: theme.text }]}>{isReadingMode ? 'Kapat' : 'İptal'}</Text>
           </TouchableOpacity>
           
@@ -115,36 +133,39 @@ const NoteEditorModal = ({ visible, onClose, note, onSave, onDelete }) => {
             </ScrollView>
           ) : (
             <>
-              <TextInput
-                style={[styles.inputTitle, { color: theme.text }]}
-                placeholder="Başlık"
-                placeholderTextColor={theme.inputPlaceholder}
-                value={title}
-                onChangeText={setTitle}
-              />
-              
-              <View style={{ flexDirection: 'row', marginBottom: 20 }}>
-                 {CATEGORIES.slice(1).map(cat => (
-                   <TouchableOpacity 
-                      key={cat.id} 
-                      onPress={() => setCategory(cat.id)}
-                      style={[styles.miniPill, { borderColor: theme.pillBorder }, category === cat.id && { backgroundColor: cat.color + '30', borderColor: cat.color }]}
-                   >
-                     <View style={[styles.dot, { backgroundColor: cat.color, marginRight: 5 }]} />
-                     <Text style={{ color: category === cat.id ? cat.color : theme.textSec, fontSize: 12 }}>{cat.name}</Text>
-                   </TouchableOpacity>
-                 ))}
-              </View>
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+                <TextInput
+                  style={[styles.inputTitle, { color: theme.text }]}
+                  placeholder="Başlık"
+                  placeholderTextColor={theme.inputPlaceholder}
+                  value={title}
+                  onChangeText={setTitle}
+                />
+                
+                <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+                   {CATEGORIES.slice(1).map(cat => (
+                     <TouchableOpacity 
+                        key={cat.id} 
+                        onPress={() => setCategory(cat.id)}
+                        style={[styles.miniPill, { borderColor: theme.pillBorder }, category === cat.id && { backgroundColor: cat.color + '30', borderColor: cat.color }]}
+                     >
+                       <View style={[styles.dot, { backgroundColor: cat.color, marginRight: 5 }]} />
+                       <Text style={{ color: category === cat.id ? cat.color : theme.textSec, fontSize: 12 }}>{cat.name}</Text>
+                     </TouchableOpacity>
+                   ))}
+                </View>
 
-              <TextInput
-                style={[styles.inputContent, { color: theme.text }]}
-                placeholder="Fikirlerini yaz..."
-                placeholderTextColor={theme.inputPlaceholder}
-                value={content}
-                onChangeText={setContent}
-                multiline
-                textAlignVertical="top"
-              />
+                <TextInput
+                  style={[styles.inputContent, { color: theme.text }]}
+                  placeholder="Fikirlerini yaz..."
+                  placeholderTextColor={theme.inputPlaceholder}
+                  value={content}
+                  onChangeText={setContent}
+                  multiline
+                  textAlignVertical="top"
+                  scrollEnabled={false} // Let the outer ScrollView handle scrolling
+                />
+              </ScrollView>
 
               <View style={[styles.statsBar, { borderTopColor: theme.cardBorder }]}>
                 <Text style={[styles.statsText, { color: theme.textSec }]}>
@@ -159,7 +180,7 @@ const NoteEditorModal = ({ visible, onClose, note, onSave, onDelete }) => {
             </>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

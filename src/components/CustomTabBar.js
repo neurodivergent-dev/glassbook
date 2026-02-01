@@ -94,6 +94,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
           let iconName = 'home-outline';
           if (route.name === 'Home') iconName = isFocused ? 'home' : 'home-outline';
+          else if (route.name === 'NetMap') iconName = isFocused ? 'planet' : 'planet-outline';
           else if (route.name === 'Favorites') iconName = isFocused ? 'heart' : 'heart-outline';
           else if (route.name === 'Settings') iconName = isFocused ? 'settings' : 'settings-outline';
 

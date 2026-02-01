@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AmbientBackground from '../components/AmbientBackground';
+import CyberSynth from '../components/CyberSynth';
 import { useTheme } from '../context/ThemeContext';
 
 const SettingsItem = ({ icon, label, value, onValueChange, type = 'switch', theme }) => (
@@ -64,7 +65,14 @@ const SettingsScreen = () => {
     theme, toggleTheme, themeMode, 
     setPalette, activePalette, palettes, 
     bgEffect, setBgEffect, backgroundEffects,
-    hapticsEnabled, toggleHaptics 
+    hapticsEnabled, toggleHaptics,
+    ambientSoundId, setAmbientSound, isAmbientEnabled, toggleAmbient, ambientSounds,
+    crtFilterEnabled, toggleCrtFilter,
+    terminalModeEnabled, toggleTerminalMode,
+    geminiApiKey, saveApiKey,
+    proceduralAudioEnabled, toggleProceduralAudio, synthUnlocked, synthMood, setSynthMood, synthMoods,
+    synthMusicEnabled, toggleSynthMusic, synthKeyboardEnabled, toggleSynthKeyboard,
+    ttsEnabled, toggleTts
   } = useTheme();
 
   return (
@@ -77,6 +85,30 @@ const SettingsScreen = () => {
 
         <ScrollView contentContainerStyle={styles.content}>
           
+          {/* TERMINAL MODE AI */}
+          <Text style={[styles.sectionTitle, { color: theme.textSec }]}>TERMINAL AI (GEMINI)</Text>
+          <View style={[styles.section, { backgroundColor: theme.card, padding: 15 }]}>
+            <Text style={{ color: theme.textSec, fontSize: 12, marginBottom: 10 }}>
+              2077 Gemini etkileşimi için bir API anahtarı girin.
+            </Text>
+            <TextInput
+              style={{ 
+                backgroundColor: 'rgba(0,0,0,0.3)', 
+                color: theme.primary, 
+                padding: 12, 
+                borderRadius: 8,
+                fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+                fontSize: 12
+              }}
+              placeholder="API Key buraya..."
+              placeholderTextColor={theme.textSec + '50'}
+              value={geminiApiKey}
+              onChangeText={saveApiKey}
+              secureTextEntry={true}
+              autoCapitalize="none"
+            />
+          </View>
+
           {/* THEME COLOR ENGINE */}
           <Text style={[styles.sectionTitle, { color: theme.textSec }]}>TEMA RENGİ</Text>
           <View style={[styles.section, { backgroundColor: theme.card, paddingVertical: 15 }]}>
@@ -91,6 +123,75 @@ const SettingsScreen = () => {
                 />
               ))}
             </ScrollView>
+          </View>
+
+          {/* PROCEDURAL AUDIO MOODS */}
+          {proceduralAudioEnabled && (
+            <>
+              <Text style={[styles.sectionTitle, { color: theme.textSec, marginTop: 15 }]}>MÜZİK MODU (SYNTH)</Text>
+              <View style={[styles.section, { backgroundColor: theme.card, paddingVertical: 15 }]}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 10 }}>
+                  {Object.values(synthMoods).map((m) => (
+                    <TouchableOpacity 
+                      key={m.id} 
+                      onPress={() => setSynthMood(m.id)}
+                      style={[
+                        styles.effectOption, 
+                        { 
+                          borderColor: synthMood === m.id ? theme.primary : theme.cardBorder, 
+                          backgroundColor: theme.bg,
+                          width: 100,
+                          height: 60
+                        }
+                      ]}
+                    >
+                      <Ionicons name={m.icon} size={20} color={synthMood === m.id ? theme.primary : theme.textSec} />
+                      <Text style={[styles.effectLabel, { color: synthMood === m.id ? theme.primary : theme.textSec }]}>{m.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </>
+          )}
+
+          {/* AMBIENT_SOUNDS */}
+          <Text style={[styles.sectionTitle, { color: theme.textSec, marginTop: 15 }]}>AMBİYANS SESLERİ</Text>
+          <View style={[styles.section, { backgroundColor: theme.card, paddingVertical: 10 }]}>
+            <SettingsItem
+              theme={theme}
+              icon="volume-high"
+              label="Ambiyans Sesi"
+              value={isAmbientEnabled}
+              onValueChange={toggleAmbient}
+            />
+            {isAmbientEnabled ? (
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false} 
+                contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 10 }}
+              >
+                {Object.values(ambientSounds).map((s) => (
+                  <TouchableOpacity 
+                    key={s.id} 
+                    onPress={() => setAmbientSound(s.id)}
+                    style={[
+                      styles.effectOption, 
+                      { 
+                        borderColor: ambientSoundId === s.id ? theme.primary : theme.cardBorder, 
+                        backgroundColor: theme.bg,
+                        width: 90,
+                        height: 60
+                      }
+                    ]}
+                  >
+                    <Ionicons name={s.icon} size={20} color={ambientSoundId === s.id ? theme.primary : theme.textSec} />
+                    <Text style={[styles.effectLabel, { color: ambientSoundId === s.id ? theme.primary : theme.textSec }]}>
+                      {s.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            ) : null}
           </View>
 
           {/* BACKGROUND EFFECT */}
@@ -117,6 +218,53 @@ const SettingsScreen = () => {
               label="Karanlık Mod"
               value={themeMode === 'dark'}
               onValueChange={toggleTheme}
+            />
+            <SettingsItem
+              theme={theme}
+              icon="musical-notes-outline"
+              label="Prosedürel Ses (Synth Master)"
+              value={proceduralAudioEnabled}
+              onValueChange={toggleProceduralAudio}
+            />
+            {proceduralAudioEnabled && (
+              <View style={{ paddingLeft: 20, paddingBottom: 10 }}>
+                <SettingsItem
+                  theme={theme}
+                  icon="headset-outline"
+                  label="Arkaplan Müziği"
+                  value={synthMusicEnabled}
+                  onValueChange={toggleSynthMusic}
+                />
+                <SettingsItem
+                  theme={theme}
+                  icon="keypad-outline"
+                  label="Terminal Klavye Sesi"
+                  value={synthKeyboardEnabled}
+                  onValueChange={toggleSynthKeyboard}
+                />
+                <SettingsItem
+                  theme={theme}
+                  icon="megaphone-outline"
+                  label="Yapay Zeka Sesi (TTS)"
+                  value={ttsEnabled}
+                  onValueChange={toggleTts}
+                />
+              </View>
+            )}
+            <CyberSynth />
+            <SettingsItem
+              theme={theme}
+              icon="terminal-outline"
+              label="Terminal Modu"
+              value={terminalModeEnabled}
+              onValueChange={toggleTerminalMode}
+            />
+            <SettingsItem
+              theme={theme}
+              icon="tv-outline"
+              label="CRT Filtresi"
+              value={crtFilterEnabled}
+              onValueChange={toggleCrtFilter}
             />
             <SettingsItem
               theme={theme}
@@ -158,6 +306,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingBottom: 120,
   },
   sectionTitle: {
     fontSize: 13,
@@ -193,7 +342,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  // Swatch Styles
   swatchContainer: {
     alignItems: 'center',
     marginHorizontal: 8,
@@ -214,7 +362,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
-  // Effect Option Styles
   effectOption: {
     width: 80,
     height: 70,
