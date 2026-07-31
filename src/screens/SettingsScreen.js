@@ -68,11 +68,13 @@ const SettingsScreen = () => {
     hapticsEnabled, toggleHaptics,
     ambientSoundId, setAmbientSound, isAmbientEnabled, toggleAmbient, ambientSounds,
     crtFilterEnabled, toggleCrtFilter,
+    chromaticAberrationEnabled, toggleChromaticAberration,
     terminalModeEnabled, toggleTerminalMode,
     geminiApiKey, saveApiKey,
     proceduralAudioEnabled, toggleProceduralAudio, synthUnlocked, synthMood, setSynthMood, synthMoods,
     synthMusicEnabled, toggleSynthMusic, synthKeyboardEnabled, toggleSynthKeyboard,
-    ttsEnabled, toggleTts
+    ttsEnabled, toggleTts,
+    bgZoom, setBgZoom, bgRotation, setBgRotation
   } = useTheme();
 
   return (
@@ -85,6 +87,57 @@ const SettingsScreen = () => {
 
         <ScrollView contentContainerStyle={styles.content}>
           
+          {/* DRONE VIEW CONTROLS */}
+          <Text style={[styles.sectionTitle, { color: theme.textSec }]}>DRONE GÖRÜNÜMÜ KONTROLÜ</Text>
+          <View style={[styles.section, { backgroundColor: theme.card, padding: 15 }]}>
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                <Text style={{ color: theme.text, fontSize: 14 }}>Zoom (Uzaklık): x{bgZoom.toFixed(2)}</Text>
+                <TouchableOpacity onPress={() => setBgZoom(1)}><Text style={{ color: theme.primary, fontSize: 12 }}>Sıfırla</Text></TouchableOpacity>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity 
+                  onPress={() => setBgZoom(Math.max(0.2, bgZoom - 0.1))}
+                  style={[styles.droneBtn, { borderColor: theme.cardBorder }]}
+                >
+                  <Ionicons name="remove" size={20} color={theme.text} />
+                </TouchableOpacity>
+                <View style={{ flex: 1, height: 4, backgroundColor: theme.cardBorder, marginHorizontal: 15, borderRadius: 2 }}>
+                  <View style={{ width: `${(bgZoom / 2) * 100}%`, height: '100%', backgroundColor: theme.primary, borderRadius: 2 }} />
+                </View>
+                <TouchableOpacity 
+                  onPress={() => setBgZoom(Math.min(3.0, bgZoom + 0.1))}
+                  style={[styles.droneBtn, { borderColor: theme.cardBorder }]}
+                >
+                  <Ionicons name="add" size={20} color={theme.text} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                <Text style={{ color: theme.text, fontSize: 14 }}>Rotasyon (Dönüş): {bgRotation}°</Text>
+                <TouchableOpacity onPress={() => setBgRotation(0)}><Text style={{ color: theme.primary, fontSize: 12 }}>Sıfırla</Text></TouchableOpacity>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity 
+                  onPress={() => setBgRotation((bgRotation - 15 + 360) % 360)}
+                  style={[styles.droneBtn, { borderColor: theme.cardBorder }]}
+                >
+                  <Ionicons name="refresh-outline" size={20} color={theme.text} style={{ transform: [{ scaleX: -1 }] }} />
+                </TouchableOpacity>
+                <View style={{ flex: 1, height: 4, backgroundColor: theme.cardBorder, marginHorizontal: 15, borderRadius: 2 }}>
+                  <View style={{ width: `${(bgRotation / 360) * 100}%`, height: '100%', backgroundColor: theme.accent, borderRadius: 2 }} />
+                </View>
+                <TouchableOpacity 
+                  onPress={() => setBgRotation((bgRotation + 15) % 360)}
+                  style={[styles.droneBtn, { borderColor: theme.cardBorder }]}
+                >
+                  <Ionicons name="refresh-outline" size={20} color={theme.text} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
           {/* TERMINAL MODE AI */}
           <Text style={[styles.sectionTitle, { color: theme.textSec }]}>TERMINAL AI (GEMINI)</Text>
           <View style={[styles.section, { backgroundColor: theme.card, padding: 15 }]}>
@@ -268,6 +321,13 @@ const SettingsScreen = () => {
             />
             <SettingsItem
               theme={theme}
+              icon="color-filter-outline"
+              label="Kromatik Sapma (Arkaplan)"
+              value={chromaticAberrationEnabled}
+              onValueChange={toggleChromaticAberration}
+            />
+            <SettingsItem
+              theme={theme}
               icon="finger-print"
               label="Haptik Geri Bildirim"
               value={hapticsEnabled}
@@ -374,6 +434,15 @@ const styles = StyleSheet.create({
   effectLabel: {
     fontSize: 10,
     fontWeight: '600',
+  },
+  droneBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
   }
 });
 

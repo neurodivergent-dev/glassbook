@@ -65,8 +65,8 @@ const NetMap3D = ({ activeCategory, onCategoryPress }) => {
 
   const sphereLines = useMemo(() => {
     const l = [];
-    const segments = 12;
-    const rings = 6;
+    const segments = 16;
+    const rings = 8;
     for (let i = 0; i <= rings; i++) {
       const phi = (Math.PI * i) / rings;
       for (let j = 0; j < segments; j++) {

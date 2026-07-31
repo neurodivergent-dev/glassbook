@@ -143,10 +143,12 @@ const WireframeSphere = ({ theme, size = 120 }) => {
       angleY.current += 0.008;
 
       const allLines = [];
-      const segments = 12;
+      const segments = 10; // Vertical slices
+      const rings = 10;    // Horizontal stacks
 
-      for (let i = 0; i <= segments; i++) {
-        const lat = (Math.PI * i) / segments - Math.PI / 2;
+      // 1. Horizontal Rings (Latitudes)
+      for (let i = 1; i < rings; i++) {
+        const lat = (Math.PI * i) / rings - Math.PI / 2;
         const cosLat = Math.cos(lat);
         const sinLat = Math.sin(lat);
 
@@ -154,39 +156,43 @@ const WireframeSphere = ({ theme, size = 120 }) => {
           const lon1 = (2 * Math.PI * j) / segments;
           const lon2 = (2 * Math.PI * (j + 1)) / segments;
 
-          const x1 = cosLat * Math.cos(lon1);
-          const y1 = sinLat;
-          const z1 = cosLat * Math.sin(lon1);
+          const p1 = {
+            x: cosLat * Math.cos(lon1),
+            y: sinLat,
+            z: cosLat * Math.sin(lon1)
+          };
+          const p2 = {
+            x: cosLat * Math.cos(lon2),
+            y: sinLat,
+            z: cosLat * Math.sin(lon2)
+          };
 
-          const x2 = cosLat * Math.cos(lon2);
-          const y2 = sinLat;
-          const z2 = cosLat * Math.sin(lon2);
-
-          allLines.push({
-            p1: { x: x1, y: y1, z: z1 },
-            p2: { x: x2, y: y2, z: z2 }
-          });
+          allLines.push({ p1, p2 });
         }
       }
 
+      // 2. Vertical Lines (Meridians/Longitudes)
       for (let j = 0; j < segments; j++) {
         const lon = (2 * Math.PI * j) / segments;
-        for (let i = 0; i < segments; i++) {
-          const lat1 = (Math.PI * i) / segments - Math.PI / 2;
-          const lat2 = (Math.PI * (i + 1)) / segments - Math.PI / 2;
+        const cosLon = Math.cos(lon);
+        const sinLon = Math.sin(lon);
 
-          const x1 = Math.cos(lat1) * Math.cos(lon);
-          const y1 = Math.sin(lat1);
-          const z1 = Math.cos(lat1) * Math.sin(lon);
+        for (let i = 0; i < rings; i++) {
+          const lat1 = (Math.PI * i) / rings - Math.PI / 2;
+          const lat2 = (Math.PI * (i + 1)) / rings - Math.PI / 2;
 
-          const x2 = Math.cos(lat2) * Math.cos(lon);
-          const y2 = Math.sin(lat2);
-          const z2 = Math.cos(lat2) * Math.sin(lon);
+          const p1 = {
+            x: Math.cos(lat1) * cosLon,
+            y: Math.sin(lat1),
+            z: Math.cos(lat1) * sinLon
+          };
+          const p2 = {
+            x: Math.cos(lat2) * cosLon,
+            y: Math.sin(lat2),
+            z: Math.cos(lat2) * sinLon
+          };
 
-          allLines.push({
-            p1: { x: x1, y: y1, z: z1 },
-            p2: { x: x2, y: y2, z: z2 }
-          });
+          allLines.push({ p1, p2 });
         }
       }
 
@@ -1210,76 +1216,104 @@ const WireframeSea = ({ theme, size = 120 }) => {
 const WireframeCyberCity = ({ theme, size = 100 }) => {
   const [lines, setLines] = useState([]);
   const angleY = useRef(0);
-  const cars = useRef(Array.from({ length: 5 }).map(() => ({
-    x: Math.random() * 4 - 2,
-    y: -Math.random() * 1.5,
-    z: Math.random() * 4 - 2,
-    speed: 0.02 + Math.random() * 0.03
+  
+  // Uçan Arabalar (Neon izleri)
+  const cars = useRef(Array.from({ length: 12 }).map(() => ({
+    x: (Math.random() - 0.5) * 10,
+    y: -(Math.random() * 3),
+    z: (Math.random() - 0.5) * 10,
+    speed: 0.03 + Math.random() * 0.05,
+    color: Math.random() > 0.5 ? theme.primary : theme.accent
   })));
 
   const buildings = useMemo(() => {
-    return Array.from({ length: 15 }).map(() => {
-      const w = 0.2 + Math.random() * 0.3;
-      const h = 0.5 + Math.random() * 2.0;
-      const d = 0.2 + Math.random() * 0.3;
-      const x = (Math.random() - 0.5) * 4;
-      const z = (Math.random() - 0.5) * 4;
-      return {
-        vertices: [
-          { x: x - w/2, y: 0, z: z - d/2 }, { x: x + w/2, y: 0, z: z - d/2 },
-          { x: x + w/2, y: -h, z: z - d/2 }, { x: x - w/2, y: -h, z: z - d/2 },
-          { x: x - w/2, y: 0, z: z + d/2 }, { x: x + w/2, y: 0, z: z + d/2 },
-          { x: x + w/2, y: -h, z: z + d/2 }, { x: x - w/2, y: -h, z: z + d/2 },
-        ],
-        edges: [
-          [0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4],
-          [0, 4], [1, 5], [2, 6], [3, 7]
-        ]
-      };
+    return Array.from({ length: 35 }).map(() => {
+      const w = 0.2 + Math.random() * 0.4;
+      const h = 0.8 + Math.random() * 3.0;
+      const d = 0.2 + Math.random() * 0.4;
+      const x = (Math.random() - 0.5) * 8;
+      const z = (Math.random() - 0.5) * 8;
+      const hasAntenna = Math.random() > 0.6;
+
+      const baseVertices = [
+        { x: x - w/2, y: 0, z: z - d/2 }, { x: x + w/2, y: 0, z: z - d/2 },
+        { x: x + w/2, y: -h, z: z - d/2 }, { x: x - w/2, y: -h, z: z - d/2 },
+        { x: x - w/2, y: 0, z: z + d/2 }, { x: x + w/2, y: 0, z: z + d/2 },
+        { x: x + w/2, y: -h, z: z + d/2 }, { x: x - w/2, y: -h, z: z + d/2 },
+      ];
+
+      const buildingEdges = [
+        [0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4],
+        [0, 4], [1, 5], [2, 6], [3, 7]
+      ];
+
+      const extraElements = [];
+      if (hasAntenna) {
+        extraElements.push({ p1: { x, y: -h, z }, p2: { x, y: -h - 0.5, z }, type: 'antenna' });
+      }
+      for(let f=1; f<6; f++) {
+        const py = -(h * (f/6));
+        extraElements.push({ p1: { x: x - w/2, y: py, z: z - d/2 }, p2: { x: x + w/2, y: py, z: z - d/2 }, type: 'window' });
+      }
+
+      return { vertices: baseVertices, edges: buildingEdges, extras: extraElements };
     });
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     let animationFrame;
     const animate = () => {
-      angleY.current += 0.005;
-      
+      angleY.current += 0.003;
       const allLines = [];
+      const cityYOff = height * 0.25;
 
-      // Buildings
+      // 1. TABAN IZGARASI (FLOOR GRID)
+      const gridSize = 10;
+      const gridSteps = 10;
+      for (let i = -gridSteps; i <= gridSteps; i++) {
+        // Yatay
+        let r1h = rotateY({ x: -gridSize, y: 0, z: i * (gridSize/gridSteps) }, angleY.current);
+        let r2h = rotateY({ x: gridSize, y: 0, z: i * (gridSize/gridSteps) }, angleY.current);
+        const p1h = project(r1h, size); const p2h = project(r2h, size);
+        p1h.y += cityYOff; p2h.y += cityYOff;
+        allLines.push({ p1: p1h, p2: p2h, z: (r1h.z + r2h.z)/2, type: 'grid', op: 0.15 });
+
+        // Dikey
+        let r1v = rotateY({ x: i * (gridSize/gridSteps), y: 0, z: -gridSize }, angleY.current);
+        let r2v = rotateY({ x: i * (gridSize/gridSteps), y: 0, z: gridSize }, angleY.current);
+        const p1v = project(r1v, size); const p2v = project(r2v, size);
+        p1v.y += cityYOff; p2v.y += cityYOff;
+        allLines.push({ p1: p1v, p2: p2v, z: (r1v.z + r2v.z)/2, type: 'grid', op: 0.15 });
+      }
+
+      // 2. BİNALAR
       buildings.forEach(b => {
         b.edges.forEach(([i1, i2]) => {
           let r1 = rotateY(b.vertices[i1], angleY.current);
-          const proj1 = project(r1, size);
           let r2 = rotateY(b.vertices[i2], angleY.current);
-          const proj2 = project(r2, size);
-          
-          // Shift down
-          proj1.y += height * 0.15;
-          proj2.y += height * 0.15;
-          
-          allLines.push({ p1: { x: proj1.x, y: proj1.y }, p2: { x: proj2.x, y: proj2.y }, z: (proj1.z + proj2.z) / 2, type: 'building' });
+          const p1 = project(r1, size); const p2 = project(r2, size);
+          p1.y += cityYOff; p2.y += cityYOff;
+          allLines.push({ p1, p2, z: (r1.z + r2.z)/2, type: 'building', op: 0.4 });
+        });
+        b.extras.forEach(ext => {
+          let r1 = rotateY(ext.p1, angleY.current);
+          let r2 = rotateY(ext.p2, angleY.current);
+          const p1 = project(r1, size); const p2 = project(r2, size);
+          p1.y += cityYOff; p2.y += cityYOff;
+          allLines.push({ p1, p2, z: (r1.z + r2.z)/2, type: ext.type, op: ext.type === 'antenna' ? 0.7 : 0.15 });
         });
       });
 
-      // Cars
+      // 3. UÇAN TRAFİK
       cars.current.forEach(car => {
-        car.x += car.speed;
-        if (car.x > 3) car.x = -3;
-        
+        car.x += car.speed; if (car.x > 5) car.x = -5;
         const v1 = { x: car.x, y: car.y, z: car.z };
         const v2 = { x: car.x - 0.2, y: car.y, z: car.z };
-        
         let r1 = rotateY(v1, angleY.current);
-        const proj1 = project(r1, size);
         let r2 = rotateY(v2, angleY.current);
-        const proj2 = project(r2, size);
-
-        // Shift down
-        proj1.y += height * 0.15;
-        proj2.y += height * 0.15;
-
-        allLines.push({ p1: { x: proj1.x, y: proj1.y }, p2: { x: proj2.x, y: proj2.y }, z: (proj1.z + proj2.z) / 2, type: 'car' });
+        const p1 = project(r1, size); const p2 = project(r2, size);
+        p1.y += cityYOff; p2.y += cityYOff;
+        allLines.push({ p1, p2, z: (r1.z + r2.z)/2, type: 'car', color: car.color, op: 0.9 });
       });
 
       allLines.sort((a, b) => a.z - b.z);
@@ -1288,7 +1322,7 @@ const WireframeCyberCity = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [buildings, size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1297,9 +1331,9 @@ const WireframeCyberCity = ({ theme, size = 100 }) => {
           key={i} 
           p1={line.p1} 
           p2={line.p2} 
-          color={line.type === 'car' ? theme.accent : theme.primary} 
-          thickness={line.type === 'car' ? 2 : 1} 
-          opacity={line.type === 'car' ? 0.8 : 0.4} 
+          color={line.type === 'car' ? line.color : (line.type === 'antenna' ? theme.accent : theme.primary)} 
+          thickness={line.type === 'car' ? 2 : (line.type === 'building' ? 1.5 : 1)} 
+          opacity={line.op} 
         />
       ))}
     </View>
@@ -1318,8 +1352,8 @@ const WireframeSaturn = ({ theme, size = 130 }) => {
       angleY.current += 0.008;
 
       const allLines = [];
-      const segments = 12;
-      const rings = 6;
+      const segments = 16;
+      const rings = 8;
 
       // PLANET (Sphere)
       for (let i = 0; i <= rings; i++) {
@@ -2103,8 +2137,833 @@ const WireframeCyberTorus = ({ theme, size = 100 }) => {
   );
 };
 
+// --- WIREFRAME MOBIUS ---
+const WireframeMobius = ({ theme, size = 100 }) => {
+  const [lines, setLines] = useState([]);
+  const angleX = useRef(0);
+  const angleY = useRef(0);
+
+  useEffect(() => {
+    let animationFrame;
+    const animate = () => {
+      angleX.current += 0.005;
+      angleY.current += 0.008;
+
+      const allLines = [];
+      const segmentsU = 24; // Resolution around the strip
+      const segmentsV = 6;  // Resolution across the width
+
+      for (let i = 0; i < segmentsU; i++) {
+        const u1 = (i * 2 * Math.PI) / segmentsU;
+        const u2 = ((i + 1) * 2 * Math.PI) / segmentsU;
+
+        for (let j = 0; j <= segmentsV; j++) {
+          const v = (j / segmentsV) * 2 - 1; // range -1 to 1
+
+          // Point at u1, v
+          const p1 = {
+            x: (1 + (v / 2) * Math.cos(u1 / 2)) * Math.cos(u1),
+            y: (1 + (v / 2) * Math.cos(u1 / 2)) * Math.sin(u1),
+            z: (v / 2) * Math.sin(u1 / 2)
+          };
+
+          // Point at u2, v (next step along the strip)
+          const p2 = {
+            x: (1 + (v / 2) * Math.cos(u2 / 2)) * Math.cos(u2),
+            y: (1 + (v / 2) * Math.cos(u2 / 2)) * Math.sin(u2),
+            z: (v / 2) * Math.sin(u2 / 2)
+          };
+          allLines.push({ p1, p2 });
+
+          // Vertical lines connecting the edges
+          if (j < segmentsV) {
+            const vNext = ((j + 1) / segmentsV) * 2 - 1;
+            const pNext = {
+              x: (1 + (vNext / 2) * Math.cos(u1 / 2)) * Math.cos(u1),
+              y: (1 + (vNext / 2) * Math.cos(u1 / 2)) * Math.sin(u1),
+              z: (vNext / 2) * Math.sin(u1 / 2)
+            };
+            allLines.push({ p1, p2: pNext });
+          }
+        }
+      }
+
+      const projectedLines = allLines.map(line => {
+        let r1 = rotateX(line.p1, angleX.current);
+        r1 = rotateY(r1, angleY.current);
+        const proj1 = project(r1, size);
+
+        let r2 = rotateX(line.p2, angleX.current);
+        r2 = rotateY(r2, angleY.current);
+        const proj2 = project(r2, size);
+
+        return { 
+          p1: { x: proj1.x, y: proj1.y }, 
+          p2: { x: proj2.x, y: proj2.y }, 
+          z: (proj1.z + proj2.z) / 2 
+        };
+      });
+
+      projectedLines.sort((a, b) => a.z - b.z);
+      setLines(projectedLines);
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, [size, theme]);
+
+  return (
+    <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
+      {lines.map((line, i) => (
+        <Line key={i} p1={line.p1} p2={line.p2} color={theme.primary} thickness={1.5} opacity={0.6} />
+      ))}
+    </View>
+  );
+};
+
+// --- WIREFRAME CYBERTRUCK ---
+// --- WIREFRAME CYBERTRUCK ---
+const WireframeCybertruck = ({ theme, size = 110, rotationEnabled = true }) => {
+  const [lines, setLines] = useState([]);
+  const angleY = useRef(0);
+  const roadAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(roadAnim, { toValue: 1, duration: 2000, easing: Easing.linear, useNativeDriver: false })
+    ).start();
+
+    let animationFrame;
+    const animate = () => {
+      if (rotationEnabled) {
+        angleY.current += 0.012; 
+      } else {
+        angleY.current = -0.3; // Sabit arka-yan bakış açısı (Driving mode)
+      }
+      const roadOffset = roadAnim._value * 0.8;
+      const allLines = [];
+
+      // CYBERTRUCK VERTICES (Triple Window Geometry)
+      const v = [
+        // Bottom Chassis
+        { x: -0.65, y: 0.5, z: 1.3 }, { x: 0.65, y: 0.5, z: 1.3 },  // 0, 1: Front bottom
+        { x: -0.65, y: 0.5, z: -1.3 }, { x: 0.65, y: 0.5, z: -1.3 }, // 2, 3: Rear bottom
+        
+        // Mid-Body Line (Waist)
+        { x: -0.85, y: 0.15, z: 1.35 }, { x: 0.85, y: 0.15, z: 1.35 },  // 4, 5: Front mid
+        { x: -0.85, y: 0.15, z: -1.35 }, { x: 0.85, y: 0.15, z: -1.35 }, // 6, 7: Rear mid
+        
+        // FLAT ROOF PANEL
+        { x: -0.55, y: -0.5, z: 0.35 }, { x: 0.55, y: -0.5, z: 0.35 },   // 8, 9: Roof Front
+        { x: -0.55, y: -0.5, z: -0.15 }, { x: 0.55, y: -0.5, z: -0.15 }, // 10, 11: Roof Rear
+        
+        // Front Hood Edge (White LED)
+        { x: -0.75, y: 0.05, z: 1.25 }, { x: 0.75, y: 0.05, z: 1.25 }, // 12, 13: Front LED
+        
+        // Rear Bed Top (Red LED)
+        { x: -0.75, y: 0.2, z: -1.3 }, { x: 0.75, y: 0.2, z: -1.3 },  // 14, 15: Rear LED
+        
+        // B-PILLAR (Between front/rear doors)
+        { x: -0.7, y: 0.15, z: 0.15 }, { x: 0.7, y: 0.15, z: 0.15 },   // 16, 17: Waist B
+        { x: -0.55, y: -0.5, z: 0.15 }, { x: 0.55, y: -0.5, z: 0.15 }, // 18, 19: Roof B
+        
+        // C-PILLAR (Between rear door and butterfly window)
+        { x: -0.7, y: 0.15, z: -0.4 }, { x: 0.7, y: 0.15, z: -0.4 },   // 20, 21: Waist C
+        { x: -0.55, y: -0.5, z: -0.15 }, { x: 0.55, y: -0.5, z: -0.15 }, // 22, 23: Roof C (Connects to Rear Roof)
+      ];
+
+      const edges = [
+        // BODY FRAME
+        [0, 1], [4, 5], [6, 7], [2, 3], [0, 4], [1, 5], [2, 6], [3, 7], [4, 6], [5, 7], [0, 2], [1, 3],
+        
+        // ROOF
+        [8, 9], [10, 11], [8, 18], [9, 19], [18, 22], [19, 23], 
+        
+        // WINDOW SEPARATION (TRIPLE)
+        [12, 8], [13, 9],               // A-Pillar
+        [16, 18], [17, 19],             // B-Pillar
+        [20, 22], [21, 23],             // C-Pillar
+        [6, 10], [7, 11],               // Rear D-Pillar / Bed slope
+        
+        // WAIST LINE SEGMENTS
+        [12, 16], [13, 17], [16, 20], [17, 21], [20, 6], [21, 7],
+        
+        // LIGHTS
+        [12, 13], [14, 15], [10, 14], [11, 15],
+        { p1: 12, p2: 13, type: 'light_front' },
+        { p1: 14, p2: 15, type: 'light_rear' }
+      ];
+
+      edges.forEach((edge) => {
+        const isSpecial = typeof edge === 'object' && edge.p1 !== undefined;
+        const i1 = isSpecial ? edge.p1 : edge[0];
+        const i2 = isSpecial ? edge.p2 : edge[1];
+        
+        let r1 = rotateY(v[i1], angleY.current);
+        const proj1 = project(r1, size);
+        let r2 = rotateY(v[i2], angleY.current);
+        const proj2 = project(r2, size);
+        
+        allLines.push({ 
+          p1: { x: proj1.x, y: proj1.y }, 
+          p2: { x: proj2.x, y: proj2.y }, 
+          z: (proj1.z + proj2.z) / 2, 
+          type: isSpecial ? edge.type : 'body' 
+        });
+      });
+
+      // AERO WHEELS
+      const wheelPos = [{ x: -0.75, z: 0.8 }, { x: 0.75, z: 0.8 }, { x: -0.75, z: -0.8 }, { x: 0.75, z: -0.8 }];
+      wheelPos.forEach(w => {
+        const segs = 6;
+        const r = 0.32;
+        for (let i = 0; i < segs; i++) {
+          const t1 = (i * 2 * Math.PI) / segs;
+          const t2 = ((i + 1) * 2 * Math.PI) / segs;
+          const p1 = { x: w.x, y: 0.5 + Math.cos(t1) * r, z: w.z + Math.sin(t1) * r };
+          const p2 = { x: w.x, y: 0.5 + Math.cos(t2) * r, z: w.z + Math.sin(t2) * r };
+          let r1 = rotateY(p1, angleY.current);
+          let r2 = rotateY(p2, angleY.current);
+          const pr1 = project(r1, size);
+          const pr2 = project(r2, size);
+          allLines.push({ p1: { x: pr1.x, y: pr1.y }, p2: { x: pr2.x, y: pr2.y }, z: (pr1.z + pr2.z)/2, type: 'wheel' });
+        }
+      });
+
+      // ROAD GRID
+      for (let i = -2; i <= 2; i++) {
+        let r1 = rotateY({ x: i * 1.0, y: 0.82, z: -2.5 + roadOffset }, angleY.current);
+        let r2 = rotateY({ x: i * 1.0, y: 0.82, z: 2.5 + roadOffset }, angleY.current);
+        const p1 = project(r1, size);
+        const p2 = project(r2, size);
+        allLines.push({ p1: { x: p1.x, y: p1.y }, p2: { x: p2.x, y: p2.y }, z: (p1.z + p2.z)/2, type: 'grid' });
+      }
+
+      allLines.sort((a, b) => a.z - b.z);
+      setLines(allLines);
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, [size, theme]);
+
+  return (
+    <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
+      {lines.map((line, i) => {
+        let color = theme.primary;
+        let thickness = 2;
+        let opacity = 0.7;
+
+        if (line.type === 'light_front') { color = '#fff'; thickness = 4; opacity = 1; }
+        else if (line.type === 'light_rear') { color = '#ff0000'; thickness = 4; opacity = 1; }
+        else if (line.type === 'wheel') { color = theme.accent; thickness = 1.5; opacity = 0.8; }
+        else if (line.type === 'grid') { color = theme.primary; thickness = 1; opacity = 0.2; }
+
+        return (
+          <Line 
+            key={i} 
+            p1={line.p1} 
+            p2={line.p2} 
+            color={color} 
+            thickness={thickness} 
+            opacity={opacity} 
+          />
+        );
+      })}
+    </View>
+  );
+};
+
+// --- CYBER RUN EFFECT (MASTER ENGINE) ---
+// --- CYBER RUN EFFECT (V3 - REAL MOTION) ---
+const CyberRun = ({ theme }) => {
+  const [renderLines, setRenderLines] = useState([]);
+  const time = useRef(0);
+  const animFrameRef = useRef(null);
+  const hoverAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(hoverAnim, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(hoverAnim, { toValue: 0, duration: 1200, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    ).start();
+
+    const animate = () => {
+      time.current += 0.05;
+      const allLines = [];
+      
+      const horizonY = height * 0.45; 
+      const roadBottomY = height;     
+      const centerX = width / 2;
+      
+      // 1. YOL IZGARASI (Yatay)
+      for (let i = 0; i < 15; i++) {
+        const z = (i - (time.current * 2 % 1)) / 15;
+        const y = horizonY + Math.pow(z, 2) * (roadBottomY - horizonY);
+        const w = width * 3 * z;
+        
+        allLines.push({ 
+          p1: {x: centerX - w/2, y}, 
+          p2: {x: centerX + w/2, y}, 
+          color: theme.primary, opacity: z, thickness: 1.5 
+        });
+      }
+
+      // 2. YOL ŞERİTLERİ (Dikey)
+      [-1.5, -0.5, 0.5, 1.5].forEach(xOff => {
+        const xStart = centerX + xOff * 20;
+        const xEnd = centerX + xOff * width * 1.5;
+        allLines.push({ 
+          p1: {x: xStart, y: horizonY}, 
+          p2: {x: xEnd, y: roadBottomY}, 
+          color: theme.primary, opacity: 0.3, thickness: 2 
+        });
+      });
+
+      // 3. PALMİYELER (2.5D)
+      for (let i = 0; i < 6; i++) {
+        const z = (i / 6 + time.current * 0.3) % 1;
+        if (z < 0.05) continue;
+        
+        const y = horizonY + Math.pow(z, 2) * (roadBottomY - horizonY);
+        const scale = z * 8;
+        const xDist = width * 0.8 * z + 40;
+        
+        [-xDist, xDist].forEach(sideX => {
+          const px = centerX + sideX;
+          const py = y;
+          const h = 40 * scale;
+          allLines.push({ p1: {x: px, y: py}, p2: {x: px, y: py - h}, color: theme.primary, opacity: z, thickness: 1 * scale });
+          [45, 135, 225, 315].forEach(ang => {
+            const rad = (ang * Math.PI) / 180;
+            allLines.push({ 
+              p1: {x: px, y: py - h}, 
+              p2: {x: px + Math.cos(rad) * 10 * scale, y: py - h + Math.sin(rad) * 10 * scale}, 
+              color: theme.accent, opacity: z, thickness: 1 
+            });
+          });
+        });
+      }
+
+      // 4. CYBERTRUCK (TOTOK VE DÜZGÜN 2.5D MODEL)
+      const carY = height * 0.85;
+      const hoverY = hoverAnim._value * -5;
+      const cw = 110; 
+
+      const cv = [
+        {x: centerX - cw, y: carY + hoverY}, {x: centerX + cw, y: carY + hoverY}, // 0,1: Alt Bumper
+        {x: centerX - cw - 15, y: carY - 40 + hoverY}, {x: centerX + cw + 15, y: carY - 40 + hoverY}, // 2,3: LED Şeridi Köşeleri
+        {x: centerX - cw + 25, y: carY - 100 + hoverY}, {x: centerX + cw - 25, y: carY - 100 + hoverY}, // 4,5: Tavan Zirvesi
+        {x: centerX - cw + 10, y: carY - 5 + hoverY}, {x: centerX + cw - 10, y: carY - 5 + hoverY}, // 6,7: Şasi iç
+      ];
+
+      const edges = [
+        [0,1], [2,3], [4,5], [6,7], // Yatay hatlar
+        [0,2], [1,3], [2,4], [3,5], // Yan gövde hatları
+        [0,6], [1,7],               // Alt birleşim
+      ];
+
+      edges.forEach(([i1, i2]) => {
+        allLines.push({ p1: cv[i1], p2: cv[i2], color: theme.primary, opacity: 1, thickness: 2.5 });
+      });
+
+      // Arka Kırmızı LED Bar (Stop Lambası - Daha Parlak ve Kalın)
+      allLines.push({ p1: cv[2], p2: cv[3], color: '#ff0000', opacity: 1, thickness: 5 });
+
+      // TEKERLEKLER (YOLA DİK VE STABİL BLOKLAR)
+      const tireW = 28;
+      const tireH = 45;
+      [-cw + 5, cw - tireW - 5].forEach(xOff => {
+        const wx = centerX + xOff;
+        const wy = carY + hoverY;
+        
+        // 1. Lastik Dış Çerçevesi (Dikdörtgen Blok)
+        allLines.push({ p1: {x: wx, y: wy}, p2: {x: wx + tireW, y: wy}, color: theme.accent, opacity: 0.8, thickness: 2 });
+        allLines.push({ p1: {x: wx, y: wy + tireH}, p2: {x: wx + tireW, y: wy + tireH}, color: theme.accent, opacity: 0.8, thickness: 2 });
+        allLines.push({ p1: {x: wx, y: wy}, p2: {x: wx, y: wy + tireH}, color: theme.accent, opacity: 0.8, thickness: 2 });
+        allLines.push({ p1: {x: wx + tireW, y: wy}, p2: {x: wx + tireW, y: wy + tireH}, color: theme.accent, opacity: 0.8, thickness: 2 });
+
+        // 2. Lastik Dişi Animasyonu (Akan Çizgiler - Dönme Hissi)
+        for(let j=0; j<6; j++) {
+          const tPos = (j/6 + time.current * 3) % 1;
+          const lineY = wy + tPos * tireH;
+          allLines.push({ 
+            p1: {x: wx, y: lineY}, 
+            p2: {x: wx + tireW, y: lineY}, 
+            color: theme.accent, opacity: 0.5 * (1 - Math.abs(tPos - 0.5) * 2), thickness: 1.5 
+          });
+        }
+
+        // 3. Dikey Siber-Kanallar (Sabit Diş Yapısı)
+        [tireW * 0.25, tireW * 0.5, tireW * 0.75].forEach(dx => {
+          allLines.push({ 
+            p1: {x: wx + dx, y: wy}, 
+            p2: {x: wx + dx, y: wy + tireH}, 
+            color: theme.accent, opacity: 0.2, thickness: 1 
+          });
+        });
+      });
+
+      setRenderLines(allLines);
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animFrameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [theme]);
+
+  const Sun = () => (
+    <View style={{ position: 'absolute', top: height * 0.05, alignSelf: 'center' }}>
+      <LinearGradient colors={[theme.accent, theme.primary]} style={{ width: width * 0.9, height: width * 0.9, borderRadius: width * 0.45, overflow: 'hidden' }}>
+        {Array.from({ length: 15 }).map((_, i) => (
+          <View key={i} style={{ width: '100%', height: 3 + i, backgroundColor: theme.bg, marginTop: 10 + i * 6, opacity: 0.9 }} />
+        ))}
+      </LinearGradient>
+    </View>
+  );
+
+  return (
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg }]}>
+      <Sun />
+      <View style={StyleSheet.absoluteFill}>
+        {renderLines.map((line, i) => (
+          <Line key={i} p1={line.p1} p2={line.p2} color={line.color} opacity={line.opacity} thickness={line.thickness} />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// --- CYBER DRIVE 3D (ULTIMATE 3D PERSPECTIVE) ---
+const CyberDrive3D = ({ theme }) => {
+  const [renderLines, setRenderLines] = useState([]);
+  const time = useRef(0);
+  const animFrameRef = useRef(null);
+  const hoverAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(hoverAnim, { toValue: 1, duration: 1500, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(hoverAnim, { toValue: 0, duration: 1500, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    ).start();
+
+    const animate = () => {
+      time.current += 0.05;
+      const allLines = [];
+      const worldSize = 180;
+      const roadY = 1.2;
+      const zMax = 20;
+
+      // 1. YOL VE AKAN ŞERİTLER
+      for (let i = 0; i <= 20; i++) {
+        const z = i - (time.current * 3 % 1);
+        if (z < 0.1) continue;
+        const opacity = Math.max(0, 1 - z / zMax);
+        
+        // Yatay Yol Çizgileri
+        const p1 = project({ x: -6, y: roadY, z }, worldSize);
+        const p2 = project({ x: 6, y: roadY, z }, worldSize);
+        allLines.push({ p1, p2, color: theme.primary, opacity: opacity * 0.4, thickness: 1 });
+
+        // Kesikli Orta Şerit
+        if (i % 2 === 0) {
+          const m1 = project({ x: 0, y: roadY, z: z }, worldSize);
+          const m2 = project({ x: 0, y: roadY, z: z + 0.5 }, worldSize);
+          allLines.push({ p1: m1, p2: m2, color: '#fff', opacity: opacity * 0.8, thickness: 2 });
+        }
+      }
+
+      // 2. YAN BİNALAR VE REKLAM PANOLARI
+      for (let i = 0; i < 8; i++) {
+        const z = (i * 4 - (time.current * 4) % 32 + 32) % 32;
+        if (z > zMax || z < 0.1) continue;
+        const opacity = Math.max(0, 1 - z / zMax);
+
+        [-8, 8].forEach(x => {
+          const h = 2 + (Math.sin(i + x) * 1.5);
+          const base = project({ x, y: roadY, z }, worldSize);
+          const top = project({ x, y: roadY - h, z }, worldSize);
+          allLines.push({ p1: base, p2: top, color: theme.primary, opacity: opacity * 0.6, thickness: 2 });
+          
+          // Bina Üst Çizgisi (Çatı)
+          const top2 = project({ x: x + (x > 0 ? 2 : -2), y: roadY - h, z }, worldSize);
+          allLines.push({ p1: top, p2: top2, color: theme.accent, opacity: opacity * 0.8, thickness: 1.5 });
+        });
+      }
+
+      // 3. CYBERTRUCK 3D (Arka-Çapraz Bakış)
+      const carZ = 2.0;
+      const h = hoverAnim._value * -0.05;
+      const cv = [
+        { x: -0.8, y: roadY + h, z: carZ + 1 }, { x: 0.8, y: roadY + h, z: carZ + 1 }, // Arka Alt
+        { x: -1.0, y: roadY - 0.5 + h, z: carZ + 1 }, { x: 1.0, y: roadY - 0.5 + h, z: carZ + 1 }, // Bel
+        { x: -0.6, y: roadY - 1.1 + h, z: carZ + 0.3 }, { x: 0.6, y: roadY - 1.1 + h, z: carZ + 0.3 }, // Tavan
+      ];
+
+      const edges = [[0,1], [2,3], [4,5], [0,2], [1,3], [2,4], [3,5]];
+      edges.forEach(([i1, i2]) => {
+        const p1 = project(cv[i1], worldSize);
+        const p2 = project(cv[i2], worldSize);
+        allLines.push({ p1, p2, color: theme.primary, opacity: 1, thickness: 2 });
+      });
+
+      // Arka Stop Lambası
+      const s1 = project(cv[2], worldSize); const s2 = project(cv[3], worldSize);
+      allLines.push({ p1: s1, p2: s2, color: '#ff0000', opacity: 1, thickness: 4 });
+
+      // TEKERLEKLER (Dönen Bloklar)
+      [-0.9, 0.9].forEach(x => {
+        const wx = x; const wy = roadY + h; const wz = carZ + 0.5;
+        for(let j=0; j<4; j++) {
+          const ang = (j/4 + time.current * 4) % 1;
+          const p1 = project({ x: wx, y: wy - 0.3 + ang * 0.6, z: wz }, worldSize);
+          const p2 = project({ x: wx, y: wy - 0.3 + ang * 0.6, z: wz + 0.2 }, worldSize);
+          allLines.push({ p1, p2, color: theme.accent, opacity: 0.6, thickness: 2 });
+        }
+      });
+
+      setRenderLines(allLines);
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animFrameRef.current = requestAnimationFrame(animate);
+    return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
+  }, [theme]);
+
+  return (
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg }]}>
+      {/* Dev Neon Güneş */}
+      <View style={{ position: 'absolute', top: height * 0.1, alignSelf: 'center' }}>
+        <LinearGradient colors={[theme.accent, theme.primary]} style={{ width: width * 0.8, height: width * 0.8, borderRadius: width * 0.4, overflow: 'hidden' }}>
+          {Array.from({ length: 15 }).map((_, i) => (
+            <View key={i} style={{ width: '100%', height: 2 + i, backgroundColor: theme.bg, marginTop: 8 + i * 5, opacity: 0.9 }} />
+          ))}
+        </LinearGradient>
+      </View>
+      <View style={StyleSheet.absoluteFill}>
+        {renderLines.map((line, i) => (
+          <Line key={i} p1={line.p1} p2={line.p2} color={line.color} opacity={line.opacity} thickness={line.thickness} />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// --- CYBER CITY 3D (NIGHT CITY EDITION) ---
+const CITY_MAP_GRID = [];
+const MAP_SIZE = 12;
+for (let x = -MAP_SIZE; x <= MAP_SIZE; x += 2) {
+  for (let z = -MAP_SIZE; z <= MAP_SIZE; z += 2) {
+    const centerDist = Math.sqrt(x*x + z*z);
+    if (centerDist < MAP_SIZE + 4) {
+      CITY_MAP_GRID.push({
+        x, z,
+        h: Math.max(0.5, (15 - centerDist) * 0.6),
+        w: 0.6 + Math.random() * 0.6,
+        type: Math.random() > 0.8 ? 'megabuilding' : 'tower',
+        hasSign: Math.random() > 0.7,
+        hasLight: Math.random() > 0.5,
+        color_alt: Math.random() > 0.5
+      });
+    }
+  }
+}
+
+const CyberCity3D = ({ theme }) => {
+  const [renderLines, setRenderLines] = useState([]);
+  const time = useRef(0);
+  const animFrameRef = useRef(null);
+  const { bgZoom, bgRotation } = useTheme();
+
+  useEffect(() => {
+    const animate = () => {
+      time.current += 0.01;
+      const allLines = [];
+      const worldSize = 120 * bgZoom;
+      const tiltX = Math.PI / 3.5;
+      const rotY = (bgRotation * Math.PI) / 180;
+
+      // 1. MEGAPOLIS IZGARASI (Floor)
+      const gS = MAP_SIZE + 8;
+      for (let i = -gS; i <= gS; i += 2) {
+        let p1h = rotateY({ x: -gS, y: 0, z: i }, rotY); p1h = rotateX(p1h, tiltX);
+        let p2h = rotateY({ x: gS, y: 0, z: i }, rotY); p2h = rotateX(p2h, tiltX);
+        allLines.push({ p1: project(p1h, worldSize), p2: project(p2h, worldSize), color: theme.primary, opacity: 0.1, thickness: 1 });
+        
+        let p1v = rotateY({ x: i, y: 0, z: -gS }, rotY); p1v = rotateX(p1v, tiltX);
+        let p2v = rotateY({ x: i, y: 0, z: gS }, rotY); p2v = rotateX(p2v, tiltX);
+        allLines.push({ p1: project(p1v, worldSize), p2: project(p2v, worldSize), color: theme.primary, opacity: 0.1, thickness: 1 });
+      }
+
+      // 2. DETAYLI GÖKDELENLER
+      CITY_MAP_GRID.forEach(b => {
+        const x1 = b.x - b.w/2; const x2 = b.x + b.w/2;
+        const z1 = b.z - b.w/2; const z2 = b.z + b.w/2;
+        const yTop = -b.h;
+        const color = b.color_alt ? theme.accent : theme.primary;
+
+        const v = [
+          {x: x1, y: 0, z: z1}, {x: x2, y: 0, z: z1}, {x: x2, y: 0, z: z2}, {x: x1, y: 0, z: z2},
+          {x: x1, y: yTop, z: z1}, {x: x2, y: yTop, z: z1}, {x: x2, y: yTop, z: z2}, {x: x1, y: yTop, z: z2}
+        ];
+
+        const p = v.map(vert => {
+          let rv = rotateY(vert, rotY);
+          rv = rotateX(rv, tiltX);
+          return project(rv, worldSize);
+        });
+
+        [[4,5], [5,6], [6,7], [7,4], [0,4], [1,5], [2,6], [3,7]].forEach(([i1, i2]) => {
+          allLines.push({ p1: p[i1], p2: p[i2], color, opacity: 0.4, thickness: 1.5 });
+        });
+
+        if (b.hasSign) {
+          const signY = yTop + 0.5;
+          const s1 = rotateY({x: x2 + 0.1, y: signY, z: z1}, rotY);
+          const s2 = rotateY({x: x2 + 0.1, y: signY + 0.8, z: z1}, rotY);
+          allLines.push({ 
+            p1: project(rotateX(s1, tiltX), worldSize), 
+            p2: project(rotateX(s2, tiltX), worldSize), 
+            color: theme.accent, opacity: 0.8 * Math.abs(Math.sin(time.current * 2)), thickness: 3 
+          });
+        }
+
+        if (b.hasLight) {
+          const lPos = rotateY({x: x1, y: yTop, z: z1}, rotY);
+          const lPos2 = rotateY({x: x1, y: yTop - 0.1, z: z1}, rotY);
+          allLines.push({ 
+            p1: project(rotateX(lPos, tiltX), worldSize), 
+            p2: project(rotateX(lPos2, tiltX), worldSize), 
+            color: '#ff0000', opacity: 1, thickness: 2 
+          });
+        }
+      });
+
+      // 3. YOĞUN TRAFİK
+      for (let i = 0; i < 20; i++) {
+        const lane = (i - 10) * 2.5;
+        const pos = ((time.current * 20 + i * 4) % 30) - 15;
+        let t1 = rotateY({ x: lane, y: -0.05, z: pos }, rotY); t1 = rotateX(t1, tiltX);
+        let t2 = rotateY({ x: lane, y: -0.05, z: pos + 0.6 }, rotY); t2 = rotateX(t2, tiltX);
+        allLines.push({ p1: project(t1, worldSize), p2: project(t2, worldSize), color: i % 2 === 0 ? theme.accent : '#fff', opacity: 0.8, thickness: 2 });
+      }
+
+      setRenderLines(allLines);
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+    animFrameRef.current = requestAnimationFrame(animate);
+    return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
+  }, [theme, bgZoom, bgRotation]); // Bağımlılıklar eklendi
+
+  return (
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg }]}>
+      <View style={StyleSheet.absoluteFill}>
+        {renderLines.map((line, i) => (
+          <Line key={i} p1={line.p1} p2={line.p2} color={line.color} opacity={line.opacity} thickness={line.thickness} />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// --- QUANTUM WAVE EFFECT (3D MULTI-LAYER PARTICLES) ---
+const QuantumWaveEffect = ({ theme, size = 150 }) => {
+  const [layers, setLayers] = useState([]);
+  const time = useRef(0);
+  const { bgZoom, bgRotation } = useTheme();
+
+  // Create static layers of particles
+  const layerConfigs = useMemo(() => [
+    { count: 40, speed: 0.02, frequency: 1.2, amplitude: 0.4, color: theme.primary, opacity: 0.6, yOffset: -0.2 },
+    { count: 35, speed: 0.015, frequency: 0.8, amplitude: 0.3, color: theme.accent, opacity: 0.4, yOffset: 0.1 },
+    { count: 30, speed: 0.025, frequency: 1.5, amplitude: 0.2, color: theme.primary, opacity: 0.3, yOffset: 0.4 },
+  ], [theme]);
+
+  const particleGrids = useMemo(() => {
+    return layerConfigs.map(config => {
+      return Array.from({ length: config.count }).map((_, i) => {
+        // More randomized distribution for "quantum" feel
+        return {
+          baseX: (Math.random() - 0.5) * 8,
+          baseZ: (Math.random() - 0.5) * 8,
+          phase: Math.random() * Math.PI * 2,
+          size: Math.random() * 4 + 1
+        };
+      });
+    });
+  }, [layerConfigs]);
+
+  useEffect(() => {
+    let animationFrame;
+    const animate = () => {
+      time.current += 0.02;
+      const worldSize = 140 * bgZoom;
+      const rotY = (bgRotation * Math.PI) / 180;
+      const tiltX = Math.PI / 4;
+
+      const newLayers = particleGrids.map((particles, layerIdx) => {
+        const config = layerConfigs[layerIdx];
+        
+        return particles.map(p => {
+          // Wave calculation (Quantum-like interference)
+          const dist = Math.sqrt(p.baseX * p.baseX + p.baseZ * p.baseZ);
+          
+          // Multi-source interference pattern
+          const wave1 = Math.sin(dist * config.frequency - time.current * config.speed * 80 + p.phase);
+          const wave2 = Math.sin((p.baseX + p.baseZ) * config.frequency * 0.8 + time.current * 0.4);
+          const interference = (wave1 + wave2) * config.amplitude;
+          
+          const point = {
+            x: p.baseX + Math.sin(time.current * 0.2 + p.phase) * 0.05, // Slight horizontal jitter
+            y: config.yOffset + interference,
+            z: p.baseZ + Math.cos(time.current * 0.2 + p.phase) * 0.05
+          };
+
+          // 3D Transformation
+          let rotated = rotateY(point, rotY + time.current * 0.2 * (layerIdx + 1) * 0.1);
+          rotated = rotateX(rotated, tiltX);
+          
+          const projected = project(rotated, worldSize);
+          
+          return {
+            ...projected,
+            size: p.size * (projected.z > 0 ? 1.2 : 0.8),
+            opacity: config.opacity * (projected.z > 0 ? 1 : 0.3),
+            color: config.color
+          };
+        });
+      });
+
+      setLayers(newLayers);
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, [particleGrids, layerConfigs, bgZoom, bgRotation]);
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {layers.map((particles, lIdx) => (
+        <View key={`layer-${lIdx}`} style={StyleSheet.absoluteFill}>
+          {particles.map((p, i) => (
+            <View
+              key={`p-${lIdx}-${i}`}
+              style={{
+                position: 'absolute',
+                left: p.x,
+                top: p.y,
+                width: p.size,
+                height: p.size,
+                borderRadius: p.size / 2,
+                backgroundColor: p.color,
+                opacity: p.opacity,
+              }}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+};
+
+// --- SINGULARITY EFFECT (SOLID 3D PARTICLE VORTEX) ---
+const SingularityEffect = ({ theme }) => {
+  const [renderItems, setRenderItems] = useState([]);
+  const time = useRef(0);
+  const { bgZoom, bgRotation } = useTheme();
+
+  const particleDefs = useMemo(() => {
+    return Array.from({ length: 250 }).map(() => {
+      const radius = 0.4 + Math.random() * 2.4;
+      return {
+        angle: Math.random() * Math.PI * 2,
+        radius,
+        baseSpeed: 0.01 + (0.02 / Math.sqrt(radius)),
+        size: Math.random() * 2.5 + 0.5,
+        yTilt: (Math.random() - 0.5) * 0.3,
+        phase: Math.random() * Math.PI * 2
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    let animationFrame;
+    const animate = () => {
+      time.current += 0.01;
+      const worldSize = 180 * bgZoom;
+      const rotY = (bgRotation * Math.PI) / 180 + time.current * 0.1;
+      const tiltX = Math.PI / 4; 
+
+      const items = particleDefs.map((p, i) => {
+        p.angle += p.baseSpeed;
+        
+        const x = Math.cos(p.angle) * p.radius;
+        const z = Math.sin(p.angle) * p.radius;
+        const y = p.yTilt + Math.sin(time.current + p.phase) * 0.05;
+
+        const getProj = (ox, oy, oz) => {
+          let r = rotateY({ x: ox, y: oy, z: oz }, rotY);
+          r = rotateX(r, tiltX);
+          return { proj: project(r, worldSize), z: r.z };
+        };
+
+        const current = getProj(x, y, z);
+        const stretchFactor = Math.max(0, 1.0 - p.radius) * 3;
+        const prev = getProj(
+          x * (1 + stretchFactor * 0.1), 
+          y * (1 + stretchFactor * 0.1), 
+          z * (1 + stretchFactor * 0.1)
+        );
+
+        const velocity = Math.sin(p.angle + rotY);
+        const doppler = 0.4 + (velocity + 1) * 0.4;
+
+        return {
+          id: i,
+          p1: current.proj,
+          p2: prev.proj,
+          z: current.z,
+          size: p.size * (current.z > 0 ? 1.5 : 0.7),
+          opacity: Math.max(0.05, doppler * (current.z > 0 ? 0.8 : 0.2)),
+          color: velocity > 0.6 ? '#fff' : (velocity < -0.6 ? theme.accent : theme.primary)
+        };
+      });
+
+      items.sort((a, b) => a.z - b.z);
+      setRenderItems(items);
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, [particleDefs, bgZoom, bgRotation, theme]);
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {renderItems.map((item) => (
+        <Line 
+          key={item.id}
+          p1={item.p1}
+          p2={item.p2}
+          color={item.color}
+          opacity={item.opacity}
+          thickness={item.size}
+          style={{ zIndex: item.z > 0 ? 200 : 50 }}
+        />
+      ))}
+    </View>
+  );
+};
+
 const AmbientBackground = () => {
-  const { theme, bgEffect } = useTheme();
+  const { theme, bgEffect, chromaticAberrationEnabled } = useTheme();
   const animValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -2139,162 +2998,191 @@ const AmbientBackground = () => {
     return <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg }]} pointerEvents="none" />;
   }
 
-  const renderEffect = () => {
+  const renderEffect = (customTheme = theme) => {
     switch (bgEffect) {
       case 'nebula':
         const spin = animValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
         return (
           <Animated.View style={{ position: 'absolute', top: -width/2, left: -width/2, width: width * 2, height: width * 2, opacity: 0.15, transform: [{ rotate: spin }] }}>
-            <LinearGradient colors={[theme.primary, 'transparent', theme.bg]} style={{ flex: 1 }} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+            <LinearGradient colors={[customTheme.primary, 'transparent', customTheme.bg]} style={{ flex: 1 }} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
           </Animated.View>
         );
 
       case 'gridSphere':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeSphere theme={theme} size={140} />
+             <WireframeSphere theme={customTheme} size={140} />
+          </View>
+        );
+
+      case 'mobius':
+        return (
+          <View style={{ flex: 1 }}>
+             <WireframeMobius theme={customTheme} size={120} />
           </View>
         );
 
       case 'cube':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeCube theme={theme} size={80} />
+             <WireframeCube theme={customTheme} size={80} />
           </View>
         );
       
       case 'dna':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeDNA theme={theme} size={100} />
+             <WireframeDNA theme={customTheme} size={100} />
           </View>
         );
 
       case 'retroPC':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeRetroPC theme={theme} size={110} />
+             <WireframeRetroPC theme={customTheme} size={110} />
           </View>
         );
 
       case 'keypadPhone':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeKeypadPhone theme={theme} size={130} />
+             <WireframeKeypadPhone theme={customTheme} size={130} />
           </View>
         );
 
       case 'wireframeHouse':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeHouse theme={theme} size={120} />
+             <WireframeHouse theme={customTheme} size={120} />
           </View>
         );
 
       case 'typewriter':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeTypewriter theme={theme} size={110} />
+             <WireframeTypewriter theme={customTheme} size={110} />
           </View>
         );
 
       case 'roseInPot':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeRoseInPot theme={theme} size={130} />
+             <WireframeRoseInPot theme={customTheme} size={130} />
           </View>
         );
 
       case 'gramophone':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeGramophone theme={theme} size={110} />
+             <WireframeGramophone theme={customTheme} size={110} />
           </View>
         );
 
       case 'sea':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeSea theme={theme} size={150} />
+             <WireframeSea theme={customTheme} size={150} />
           </View>
         );
 
       case 'cyberCity':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeCyberCity theme={theme} size={100} />
+             <WireframeCyberCity theme={customTheme} size={100} />
           </View>
         );
+
+      case 'cyberCity3D':
+        return <CyberCity3D theme={customTheme} />;
 
       case 'saturn':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeSaturn theme={theme} size={80} />
+             <WireframeSaturn theme={customTheme} size={80} />
           </View>
         );
+
+      case 'cybertruck':
+        return (
+          <View style={{ flex: 1 }}>
+             <WireframeCybertruck theme={customTheme} size={110} />
+          </View>
+        );
+
+      case 'cyberRun':
+        return <CyberRun theme={customTheme} />;
+
+      case 'cyberDrive3D':
+        return <CyberDrive3D theme={customTheme} />;
 
       case 'flyingCar':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeFlyingCar theme={theme} size={110} />
+             <WireframeFlyingCar theme={customTheme} size={110} />
           </View>
         );
 
       case 'cyberSkull':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeCyberSkull theme={theme} size={120} />
+             <WireframeCyberSkull theme={customTheme} size={120} />
           </View>
         );
 
       case 'walkman':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeWalkman theme={theme} size={130} />
+             <WireframeWalkman theme={customTheme} size={130} />
           </View>
         );
 
       case 'dataDisk':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeDataDisk theme={theme} size={140} />
+             <WireframeDataDisk theme={customTheme} size={140} />
           </View>
         );
 
       case 'hyperCube':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeHyperCube theme={theme} size={100} />
+             <WireframeHyperCube theme={customTheme} size={100} />
           </View>
         );
 
       case 'warpSpeed':
-        return <WarpSpeed theme={theme} />;
+        return <WarpSpeed theme={customTheme} />;
+
+      case 'quantumWave':
+        return <QuantumWaveEffect theme={customTheme} />;
+
+      case 'singularity':
+        return <SingularityEffect theme={customTheme} />;
 
       case 'cyberObelisk':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeCyberObelisk theme={theme} size={130} />
+             <WireframeCyberObelisk theme={customTheme} size={130} />
           </View>
         );
 
       case 'cyberTorus':
         return (
           <View style={{ flex: 1 }}>
-             <WireframeCyberTorus theme={theme} size={100} />
+             <WireframeCyberTorus theme={customTheme} size={100} />
           </View>
         );
 
       case 'particles':
-        return <Particles theme={theme} />;
+        return <Particles theme={customTheme} />;
       
       case 'matrixRain':
-        return <MatrixRain theme={theme} />;
+        return <MatrixRain theme={customTheme} />;
 
       case 'aiHead':
         return (
           <View style={{ flex: 1 }}>
-             <AIHead theme={theme} size={90} />
+             <AIHead theme={customTheme} size={90} />
           </View>
         );
 
@@ -2302,16 +3190,16 @@ const AmbientBackground = () => {
         const translateY = animValue.interpolate({ inputRange: [0, 1], outputRange: [-50, 50] });
         return (
           <Animated.View style={{ position: 'absolute', width: width, height: height * 1.5, opacity: 0.2, transform: [{ translateY }] }}>
-            <LinearGradient colors={[theme.bg, theme.primary, theme.accent, theme.bg]} locations={[0, 0.4, 0.6, 1]} style={{ flex: 1 }} />
+            <LinearGradient colors={[customTheme.bg, customTheme.primary, customTheme.accent, customTheme.bg]} locations={[0, 0.4, 0.6, 1]} style={{ flex: 1 }} />
           </Animated.View>
         );
 
       case 'grid':
         return (
           <View style={{ flex: 1, opacity: 0.1 }}>
-             {Array.from({ length: 20 }).map((_, i) => <View key={`h-${i}`} style={{ position: 'absolute', top: i * 40, width: '100%', height: 1, backgroundColor: theme.primary }} />)}
-             {Array.from({ length: 10 }).map((_, i) => <View key={`v-${i}`} style={{ position: 'absolute', left: i * 40, height: '100%', width: 1, backgroundColor: theme.primary }} />)}
-             <LinearGradient colors={[theme.bg, 'transparent', theme.bg]} style={StyleSheet.absoluteFill} />
+             {Array.from({ length: 20 }).map((_, i) => <View key={`h-${i}`} style={{ position: 'absolute', top: i * 40, width: '100%', height: 1, backgroundColor: customTheme.primary }} />)}
+             {Array.from({ length: 10 }).map((_, i) => <View key={`v-${i}`} style={{ position: 'absolute', left: i * 40, height: '100%', width: 1, backgroundColor: customTheme.primary }} />)}
+             <LinearGradient colors={[customTheme.bg, 'transparent', customTheme.bg]} style={StyleSheet.absoluteFill} />
           </View>
         );
 
@@ -2319,10 +3207,10 @@ const AmbientBackground = () => {
         const scanY = animValue.interpolate({ inputRange: [0, 1], outputRange: [-100, height + 100] });
         return (
           <View style={StyleSheet.absoluteFill}>
-            <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 100, opacity: 0.1, backgroundColor: theme.primary, transform: [{ translateY: scanY }] }}>
-              <LinearGradient colors={['transparent', theme.primary, 'transparent']} style={{ flex: 1 }} />
+            <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 100, opacity: 0.1, backgroundColor: customTheme.primary, transform: [{ translateY: scanY }] }}>
+              <LinearGradient colors={['transparent', customTheme.primary, 'transparent']} style={{ flex: 1 }} />
             </Animated.View>
-            <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: theme.bg, opacity: 0.05 }} />
+            <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: customTheme.bg, opacity: 0.05 }} />
           </View>
         );
 
@@ -2331,7 +3219,7 @@ const AmbientBackground = () => {
         const pulseOpacity = animValue.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.1, 0.3, 0.1] });
         return (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Animated.View style={{ width: width * 0.8, height: width * 0.8, borderRadius: width * 0.4, backgroundColor: theme.primary, opacity: pulseOpacity, transform: [{ scale: pulseScale }] }} />
+            <Animated.View style={{ width: width * 0.8, height: width * 0.8, borderRadius: width * 0.4, backgroundColor: customTheme.primary, opacity: pulseOpacity, transform: [{ scale: pulseScale }] }} />
           </View>
         );
 
@@ -2340,10 +3228,39 @@ const AmbientBackground = () => {
     }
   };
 
+  const heavyEffects = [
+    'gridSphere', 'mobius', 'cube', 'dna', 'retroPC', 'keypadPhone', 
+    'wireframeHouse', 'typewriter', 'roseInPot', 'gramophone', 'sea', 
+    'cyberCity', 'cyberCity3D', 'saturn', 'flyingCar', 'cyberSkull', 'walkman', 
+    'dataDisk', 'cyberObelisk', 'cyberTorus', 'aiHead', 'cyberRun', 'cyberDrive3D',
+    'quantumWave', 'singularity'
+  ];
+
+  const shouldApplyAberration = chromaticAberrationEnabled && 
+                                bgEffect !== 'none' && 
+                                (!heavyEffects.includes(bgEffect) || bgEffect === 'hyperCube');
+
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        {renderEffect()}
+        {shouldApplyAberration ? (
+          <>
+            {/* Aberration Layer: Swap Primary and Accent, and shift position further */}
+            <View style={[StyleSheet.absoluteFill, { left: 6, top: 3, opacity: 0.5 }]}>
+              {renderEffect({ 
+                ...theme, 
+                primary: theme.accent, 
+                accent: theme.primary 
+              })}
+            </View>
+            {/* Main Layer */}
+            <View style={StyleSheet.absoluteFill}>
+              {renderEffect(theme)}
+            </View>
+          </>
+        ) : (
+          renderEffect(theme)
+        )}
       </View>
     </View>
   );

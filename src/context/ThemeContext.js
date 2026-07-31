@@ -111,6 +111,7 @@ const STORAGE_KEY_AMBIENT_ENABLED = '@app_theme_ambient_enabled';
 const STORAGE_KEY_CRT_FILTER = '@app_theme_crt_filter';
 const STORAGE_KEY_TERMINAL_MODE = '@app_theme_terminal_mode';
 const STORAGE_KEY_GEMINI_API_KEY = '@app_theme_gemini_api_key';
+const STORAGE_KEY_CHROMATIC_ABERRATION = '@app_theme_chromatic_aberration';
 const STORAGE_KEY_PROCEDURAL_AUDIO = '@app_theme_procedural_audio';
 const STORAGE_KEY_SYNTH_MUSIC = '@app_theme_synth_music';
 const STORAGE_KEY_SYNTH_KB = '@app_theme_synth_kb';
@@ -118,11 +119,13 @@ const STORAGE_KEY_SYNTH_MOOD = '@app_theme_synth_mood';
 const STORAGE_KEY_TTS_ENABLED = '@app_theme_tts_enabled';
 
 export const BACKGROUND_EFFECTS = {
+  mobius: { id: 'mobius', name: 'Möbius Şeridi', icon: 'infinite' },
   nebula: { id: 'nebula', name: 'Nebula', icon: 'planet' },
   aurora: { id: 'aurora', name: 'Aurora', icon: 'water' },
   aiHead: { id: 'aiHead', name: 'AI Core', icon: 'hardware-chip' },
   grid: { id: 'grid', name: 'Grid', icon: 'grid' },
   gridSphere: { id: 'gridSphere', name: 'Küre', icon: 'globe' },
+  mobius: { id: 'mobius', name: 'Möbius Şeridi', icon: 'infinite' },
   cube: { id: 'cube', name: 'Küp', icon: 'cube' },
   scanline: { id: 'scanline', name: 'Scanline', icon: 'pulse' },
   pulse: { id: 'pulse', name: 'Pulse', icon: 'radio-button-on' },
@@ -136,14 +139,20 @@ export const BACKGROUND_EFFECTS = {
   roseInPot: { id: 'roseInPot', name: 'Saksıda Gül', icon: 'flower' },
   gramophone: { id: 'gramophone', name: 'Gramafon', icon: 'musical-notes' },
   sea: { id: 'sea', name: 'Deniz', icon: 'water' },
-  cyberCity: { id: 'cyberCity', name: 'Siber Şehir', icon: 'business' },
+  cyberCity: { id: 'cyberCity', name: 'Siber Şehir (Klasik)', icon: 'business' },
+  cyberCity3D: { id: 'cyberCity3D', name: 'Siber Şehir (3D)', icon: 'business' },
   saturn: { id: 'saturn', name: 'Satürn', icon: 'planet' },
+  cybertruck: { id: 'cybertruck', name: 'Cybertruck', icon: 'car-sport' },
+  cyberRun: { id: 'cyberRun', name: 'Retro Sürüş (2D)', icon: 'car-sport' },
+  cyberDrive3D: { id: 'cyberDrive3D', name: 'Siber Sürüş (3D)', icon: 'rocket' },
   flyingCar: { id: 'flyingCar', name: 'Uçan Araba', icon: 'car-sport' },
   cyberSkull: { id: 'cyberSkull', name: 'Siber Kurukafa', icon: 'skull' },
   walkman: { id: 'walkman', name: 'Walkman', icon: 'headset' },
   dataDisk: { id: 'dataDisk', name: 'Veri Diski', icon: 'disc' },
   hyperCube: { id: 'hyperCube', name: 'Hiper Küp', icon: 'cube-outline' },
   warpSpeed: { id: 'warpSpeed', name: 'Warp Speed', icon: 'rocket' },
+  quantumWave: { id: 'quantumWave', name: 'Kuantum Dalga', icon: 'pulse' },
+  singularity: { id: 'singularity', name: 'Dijital Tekillik', icon: 'planet' },
   cyberObelisk: { id: 'cyberObelisk', name: 'Siber Piramit', icon: 'triangle' },
   cyberTorus: { id: 'cyberTorus', name: 'Siber Torus', icon: 'radio-button-off' },
   none: { id: 'none', name: 'Kapalı', icon: 'close-circle' },
@@ -176,6 +185,7 @@ export const ThemeProvider = ({ children }) => {
   const [ambientSoundId, setAmbientSoundId] = useState('rain');
   const [isAmbientEnabled, setIsAmbientEnabled] = useState(false);
   const [crtFilterEnabled, setCrtFilterEnabled] = useState(false);
+  const [chromaticAberrationEnabled, setChromaticAberrationEnabled] = useState(false);
   const [terminalModeEnabled, setTerminalModeEnabled] = useState(false);
   const [blackwallEnabled, setBlackwallEnabled] = useState(false);
   const [geminiApiKey, setGeminiApiKey] = useState('');
@@ -185,6 +195,9 @@ export const ThemeProvider = ({ children }) => {
   const [synthUnlocked, setSynthUnlocked] = useState(false);
   const [synthMood, setSynthMood] = useState('cyberbeat');
   const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [bgZoom, setBgZoom] = useState(1); // 0.5 ile 2.0 arası
+  const [bgRotation, setBgRotation] = useState(0); // 0 ile 360 derece arası
 
   // Merge Base Theme + Active Palette
   const theme = {
@@ -196,6 +209,10 @@ export const ThemeProvider = ({ children }) => {
     loadSettings();
   }, []);
 
+  const togglePreviewMode = () => {
+    setIsPreviewMode(!isPreviewMode);
+  };
+
   const loadSettings = async () => {
     try {
       const storedMode = await AsyncStorage.getItem(STORAGE_KEY_MODE);
@@ -205,6 +222,7 @@ export const ThemeProvider = ({ children }) => {
       const storedAmbientId = await AsyncStorage.getItem(STORAGE_KEY_AMBIENT_SOUND);
       const storedAmbientEnabled = await AsyncStorage.getItem(STORAGE_KEY_AMBIENT_ENABLED);
       const storedCrtFilter = await AsyncStorage.getItem(STORAGE_KEY_CRT_FILTER);
+      const storedChromatic = await AsyncStorage.getItem(STORAGE_KEY_CHROMATIC_ABERRATION);
       const storedTerminal = await AsyncStorage.getItem(STORAGE_KEY_TERMINAL_MODE);
       const storedApiKey = await AsyncStorage.getItem(STORAGE_KEY_GEMINI_API_KEY);
       const storedProcedural = await AsyncStorage.getItem(STORAGE_KEY_PROCEDURAL_AUDIO);
@@ -220,6 +238,7 @@ export const ThemeProvider = ({ children }) => {
       if (storedAmbientId && AMBIENT_SOUNDS[storedAmbientId]) setAmbientSoundId(storedAmbientId);
       if (storedAmbientEnabled !== null) setIsAmbientEnabled(JSON.parse(storedAmbientEnabled));
       if (storedCrtFilter !== null) setCrtFilterEnabled(JSON.parse(storedCrtFilter));
+      if (storedChromatic !== null) setChromaticAberrationEnabled(JSON.parse(storedChromatic));
       if (storedTerminal !== null) setTerminalModeEnabled(JSON.parse(storedTerminal));
       if (storedApiKey) setGeminiApiKey(storedApiKey);
       if (storedProcedural !== null) setProceduralAudioEnabled(JSON.parse(storedProcedural));
@@ -292,6 +311,12 @@ export const ThemeProvider = ({ children }) => {
     await AsyncStorage.setItem(STORAGE_KEY_CRT_FILTER, JSON.stringify(newValue));
   };
 
+  const toggleChromaticAberration = async () => {
+    const newValue = !chromaticAberrationEnabled;
+    setChromaticAberrationEnabled(newValue);
+    await AsyncStorage.setItem(STORAGE_KEY_CHROMATIC_ABERRATION, JSON.stringify(newValue));
+  };
+
   const toggleTerminalMode = async () => {
     const newValue = !terminalModeEnabled;
     setTerminalModeEnabled(newValue);
@@ -339,6 +364,8 @@ export const ThemeProvider = ({ children }) => {
       ambientSounds: AMBIENT_SOUNDS,
       crtFilterEnabled,
       toggleCrtFilter,
+      chromaticAberrationEnabled,
+      toggleChromaticAberration,
       terminalModeEnabled,
       toggleTerminalMode,
       blackwallEnabled,
@@ -357,7 +384,13 @@ export const ThemeProvider = ({ children }) => {
       setSynthMood: setSynthMoodWithStorage,
       synthMoods: SYNTH_MOODS,
       ttsEnabled,
-      toggleTts
+      toggleTts,
+      isPreviewMode,
+      togglePreviewMode,
+      bgZoom,
+      setBgZoom,
+      bgRotation,
+      setBgRotation
     }}>
       <StatusBar barStyle={theme.statusBarStyle} backgroundColor={theme.bg} />
       {children}

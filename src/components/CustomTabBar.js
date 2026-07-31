@@ -59,13 +59,26 @@ const TabIcon = ({ name, focused, theme }) => {
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
-  const { theme, themeMode } = useTheme();
+  const { theme, themeMode, isPreviewMode } = useTheme();
+  const fadeAnim = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: isPreviewMode ? 0 : 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
+  }, [isPreviewMode]);
   
   return (
-    <View style={[styles.container, { 
-      bottom: Platform.OS === 'ios' ? 0 : insets.bottom,
-      backgroundColor: Platform.OS === 'android' ? theme.tabBg : 'transparent'
-    }]}>
+    <Animated.View 
+      style={[styles.container, { 
+        bottom: Platform.OS === 'ios' ? 0 : insets.bottom,
+        backgroundColor: Platform.OS === 'android' ? theme.tabBg : 'transparent',
+        opacity: fadeAnim,
+      }]}
+      pointerEvents={isPreviewMode ? 'none' : 'auto'}
+    >
       <BlurView intensity={80} tint={themeMode === 'dark' ? "dark" : "light"} style={StyleSheet.absoluteFill} />
       {/* Border Gradient */}
       <LinearGradient
@@ -114,7 +127,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           );
         })}
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
