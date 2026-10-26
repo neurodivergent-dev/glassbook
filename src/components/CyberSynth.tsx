@@ -147,28 +147,46 @@ const CyberSynth = () => {
     }
 
     window.initNeuralLink = function() {
-      initAudio();
-      if (ctx.state === 'suspended') ctx.resume();
-      nextNoteTime = ctx.currentTime + 0.1;
-      scheduler();
-      window.ReactNativeWebView.postMessage('UNLOCKED');
+      try {
+        initAudio();
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+        nextNoteTime = ctx ? ctx.currentTime + 0.1 : 0.1;
+        scheduler();
+        window.ReactNativeWebView.postMessage('UNLOCKED');
+      } catch (err) {
+        console.error(err);
+      }
     };
   `, []);
 
   if (!proceduralAudioEnabled) return null;
 
   return (
-    <View style={synthUnlocked ? styles.offScreen : styles.visible}>
+    <View style={styles.hiddenContainer} pointerEvents="none">
       <WebView
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: `
-          <html><body style="margin:0; padding:0; background:transparent; display:flex; align-items:center; justify-content:center; width:100vw; height:100vh;">
-            <button onclick="window.initNeuralLink()" style="width:90%; height:60px; background:rgba(0,255,255,0.1); border:2px solid #0ff; color:#0ff; font-family:monospace; font-weight:bold; font-size:16px; border-radius:12px; box-shadow: 0 0 15px #0ff; outline: none;">
-              [ ESTABLISH NEURAL LINK ]
-            </button>
-            <script>${synthCode}</script>
-          </body></html>
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin:0; padding:0; background:transparent;">
+              <script>
+                ${synthCode}
+                
+                function boot() {
+                  window.initNeuralLink();
+                }
+
+                // Kullanici dokunmasi olmadan aninda calistir
+                boot();
+                window.addEventListener('load', boot);
+                document.addEventListener('DOMContentLoaded', boot);
+              </script>
+            </body>
+          </html>
         ` }}
         javaScriptEnabled={true}
         onMessage={(event) => {
@@ -176,21 +194,21 @@ const CyberSynth = () => {
         }}
         mediaPlaybackRequiresUserAction={false}
         allowsInlineMediaPlayback={true}
-        style={{ backgroundColor: 'transparent' }}
+        style={{ width: 0, height: 0, opacity: 0 }}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  visible: {
-    height: 90, marginHorizontal: 15, marginTop: 10, marginBottom: 10,
-  },
-  offScreen: {
+  hiddenContainer: {
     position: 'absolute',
-    top: 0, right: 0,
-    width: 1, height: 1,
-    opacity: 0.01,
+    top: -1000,
+    left: -1000,
+    width: 1,
+    height: 1,
+    opacity: 0,
+    overflow: 'hidden',
   }
 });
 
