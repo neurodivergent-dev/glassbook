@@ -100,24 +100,13 @@ const HomeScreen = () => {
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Animated.View style={{ opacity: fadeAnim }}>
               <TouchableOpacity 
-                style={[styles.profileBtn, { marginRight: 12 }]}
+                style={styles.profileBtn}
                 onPress={handleTogglePreview}
                 activeOpacity={0.7}
                 disabled={isPreviewMode}
               >
                 <LinearGradient colors={[theme.primary, theme.accent]} style={StyleSheet.absoluteFill} />
                 <Ionicons name="eye" size={20} color="#fff" />
-              </TouchableOpacity>
-            </Animated.View>
-
-            <Animated.View style={{ opacity: fadeAnim }}>
-              <TouchableOpacity 
-                style={styles.profileBtn}
-                onPress={() => !isPreviewMode && navigation.navigate('Profile')}
-                disabled={isPreviewMode}
-              >
-                <LinearGradient colors={[theme.primary, theme.accent]} style={StyleSheet.absoluteFill} />
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>P</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
