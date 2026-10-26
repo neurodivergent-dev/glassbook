@@ -1,68 +1,30 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 
-const EmptyState = ({ icon = "document-text-outline", message = "Burada hiç not yok.", subMessage = "Yeni bir fikir ekleyerek başla." }) => {
+interface EmptyStateProps {
+  icon?: keyof typeof Ionicons.glyphMap;
+  message?: string;
+  subMessage?: string;
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ 
+  icon = "document-text-outline", 
+  message = "Henüz bir not yok", 
+  subMessage = "Eklediğiniz notlar burada listelenir." 
+}) => {
   const { theme } = useTheme();
-  const floatAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    // Floating animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -15,
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Glow pulse animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.2,
-          duration: 1500,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.iconContainer, { transform: [{ translateY: floatAnim }] }]}>
-        <Animated.View style={[styles.glow, { transform: [{ scale: pulseAnim }] }]}>
-          <LinearGradient
-            colors={[theme.primary, 'transparent']}
-            style={StyleSheet.absoluteFill}
-            start={{ x: 0.5, y: 0.5 }}
-            end={{ x: 1, y: 1 }}
-          />
-        </Animated.View>
-        <Ionicons name={icon} size={80} color={theme.textSec} style={{ opacity: 0.8 }} />
-      </Animated.View>
-      
-      <Text style={[styles.message, { color: theme.text }]}>{message}</Text>
-      <Text style={[styles.subMessage, { color: theme.textSec }]}>{subMessage}</Text>
+      <View style={[styles.iconWrapper, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+        <Ionicons name={icon} size={28} color={theme.textSec} />
+      </View>
+      <Text style={[styles.title, { color: theme.text }]}>{message}</Text>
+      {subMessage ? (
+        <Text style={[styles.subtitle, { color: theme.textSec }]}>{subMessage}</Text>
+      ) : null}
     </View>
   );
 };
@@ -71,34 +33,31 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 60,
-    paddingHorizontal: 40,
+    paddingVertical: 80,
+    paddingHorizontal: 32,
   },
-  iconContainer: {
-    width: 120,
-    height: 120,
+  iconWrapper: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
-  glow: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    opacity: 0.2,
-  },
-  message: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
     textAlign: 'center',
+    marginBottom: 6,
+    letterSpacing: -0.2,
   },
-  subMessage: {
-    fontSize: 14,
+  subtitle: {
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: 'center',
-    lineHeight: 20,
-  }
+    maxWidth: 240,
+  },
 });
 
 export default EmptyState;

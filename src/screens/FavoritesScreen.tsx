@@ -1,9 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
-
 import { useNotes } from '../context/NotesContext';
 import { useTheme } from '../context/ThemeContext';
 import AmbientBackground from '../components/AmbientBackground';
@@ -14,15 +11,14 @@ import EmptyState from '../components/EmptyState';
 const FavoritesScreen = () => {
   const { notes, saveNote, deleteNote } = useNotes();
   const { theme } = useTheme();
+
+  // Editor State
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
 
-  const pinnedNotes = useMemo(() => {
-    return notes.filter(n => n.isPinned).sort((a, b) => parseInt(b.id) - parseInt(a.id));
-  }, [notes]);
+  const pinnedNotes = notes.filter(n => n.isPinned);
 
   const openNote = (note) => {
-    Haptics.selectionAsync();
     setSelectedNote(note);
     setModalVisible(true);
   };
@@ -38,9 +34,7 @@ const FavoritesScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <StatusBar barStyle={theme.statusBarStyle} />
       <AmbientBackground />
-      
       <SafeAreaView style={{ flex: 1, paddingBottom: 80 }} edges={['top', 'left', 'right']}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -57,9 +51,9 @@ const FavoritesScreen = () => {
           columnWrapperStyle={{ justifyContent: 'space-between' }}
           ListEmptyComponent={
             <EmptyState 
-              icon="heart-dislike-outline" 
-              message="Favori listen boş"
-              subMessage="Önemli notlarını iğneleyerek buraya ekleyebilirsin."
+              icon="bookmark-outline" 
+              message="Henüz favori not yok"
+              subMessage="Önemli notlarınızı sabitleyerek bu alandan hızlıca erişebilirsiniz."
             />
           }
         />

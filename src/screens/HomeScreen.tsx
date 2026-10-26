@@ -127,9 +127,9 @@ const HomeScreen = () => {
             columnWrapperStyle={{ justifyContent: 'space-between' }}
             ListEmptyComponent={
               <EmptyState 
-                icon="planet-outline" 
-                message={searchQuery ? "Sonuç bulunamadı" : "Burası çok sessiz..."}
-                subMessage={searchQuery ? "Farklı bir şeyler aramayı dene." : "İlk notunu oluşturarak bu boşluğu doldur."}
+                icon={searchQuery ? "search-outline" : "document-text-outline"}
+                message={searchQuery ? "Sonuç bulunamadı" : "Henüz not eklenmedi"}
+                subMessage={searchQuery ? "Farklı bir arama terimi deneyebilirsiniz." : "Sağ alttaki butona dokunarak ilk notunuzu oluşturun."}
               />
             }
           />
