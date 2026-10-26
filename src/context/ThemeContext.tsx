@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import { StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -199,11 +199,11 @@ export const ThemeProvider = ({ children }) => {
   const [bgZoom, setBgZoom] = useState(1); // 0.5 ile 2.0 arası
   const [bgRotation, setBgRotation] = useState(0); // 0 ile 360 derece arası
 
-  // Merge Base Theme + Active Palette
-  const theme = {
+  // Merge Base Theme + Active Palette (Memoized to prevent infinite re-render loops)
+  const theme = useMemo(() => ({
     ...BASE_THEMES[themeMode],
     ...(blackwallEnabled ? { primary: '#FF0000', accent: '#8B0000', text: '#FF4444' } : PALETTES[activePalette]),
-  };
+  }), [themeMode, blackwallEnabled, activePalette]);
 
   useEffect(() => {
     loadSettings();

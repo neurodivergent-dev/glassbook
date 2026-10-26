@@ -119,7 +119,7 @@ const WireframeCube = ({ theme, size = 80 }) => {
 
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -216,7 +216,7 @@ const WireframeSphere = ({ theme, size = 120 }) => {
 
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -313,7 +313,7 @@ const WireframeDNA = ({ theme, size = 120 }) => {
 
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -435,7 +435,7 @@ export const AIHead = ({ theme, size = 100 }) => {
 
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -646,7 +646,7 @@ const WireframeRetroPC = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -737,7 +737,7 @@ const WireframeKeypadPhone = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -827,7 +827,7 @@ const WireframeHouse = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -914,7 +914,7 @@ const WireframeTypewriter = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1017,7 +1017,7 @@ const WireframeRoseInPot = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1127,7 +1127,7 @@ const WireframeGramophone = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1201,7 +1201,7 @@ const WireframeSea = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1258,7 +1258,7 @@ const WireframeCyberCity = ({ theme, size = 100 }) => {
 
       return { vertices: baseVertices, edges: buildingEdges, extras: extraElements };
     });
-  }, [theme]);
+  }, []);
 
   useEffect(() => {
     let animationFrame;
@@ -1410,7 +1410,7 @@ const WireframeSaturn = ({ theme, size = 130 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1515,7 +1515,7 @@ const WireframeCyberCar = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1597,7 +1597,7 @@ const WireframeFlyingCar = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1682,7 +1682,7 @@ const WireframeCyberSkull = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1783,7 +1783,7 @@ const WireframeWalkman = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1856,7 +1856,7 @@ const WireframeDataDisk = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -1930,7 +1930,7 @@ const WireframeHyperCube = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -2039,7 +2039,7 @@ const WireframeCyberObelisk = ({ theme, size = 120 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -2119,7 +2119,7 @@ const WireframeCyberTorus = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -2210,7 +2210,7 @@ const WireframeMobius = ({ theme, size = 100 }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -2345,7 +2345,7 @@ const WireframeCybertruck = ({ theme, size = 110, rotationEnabled = true }) => {
     };
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [size, theme]);
+  }, [size]);
 
   return (
     <View style={{ width: width, height: height, alignItems: 'center', justifyContent: 'center' }}>
@@ -2514,7 +2514,7 @@ const CyberRun = ({ theme }) => {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [theme]);
+  }, []);
 
   const Sun = () => (
     <View style={{ position: 'absolute', top: height * 0.05, alignSelf: 'center' }}>
@@ -2634,7 +2634,7 @@ const CyberDrive3D = ({ theme }) => {
 
     animFrameRef.current = requestAnimationFrame(animate);
     return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
-  }, [theme]);
+  }, []);
 
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg }]}>
@@ -2759,7 +2759,7 @@ const CyberCity3D = ({ theme }) => {
     };
     animFrameRef.current = requestAnimationFrame(animate);
     return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
-  }, [theme, bgZoom, bgRotation]); // Bağımlılıklar eklendi
+  }, [bgZoom, bgRotation]); // Bağımlılıklar eklendi
 
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg }]}>
@@ -2783,7 +2783,7 @@ const QuantumWaveEffect = ({ theme, size = 150 }) => {
     { count: 40, speed: 0.02, frequency: 1.2, amplitude: 0.4, color: theme.primary, opacity: 0.6, yOffset: -0.2 },
     { count: 35, speed: 0.015, frequency: 0.8, amplitude: 0.3, color: theme.accent, opacity: 0.4, yOffset: 0.1 },
     { count: 30, speed: 0.025, frequency: 1.5, amplitude: 0.2, color: theme.primary, opacity: 0.3, yOffset: 0.4 },
-  ], [theme]);
+  ], []);
 
   const particleGrids = useMemo(() => {
     return layerConfigs.map(config => {
@@ -2943,7 +2943,7 @@ const SingularityEffect = ({ theme }) => {
 
     animate();
     return () => cancelAnimationFrame(animationFrame);
-  }, [particleDefs, bgZoom, bgRotation, theme]);
+  }, [particleDefs, bgZoom, bgRotation]);
 
   return (
     <View style={StyleSheet.absoluteFill}>
