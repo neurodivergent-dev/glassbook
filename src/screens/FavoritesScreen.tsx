@@ -46,9 +46,12 @@ const FavoritesScreen = () => {
           data={pinnedNotes}
           keyExtractor={item => item.id}
           renderItem={({ item, index }) => <NoteCard item={item} index={index} onPress={() => openNote(item)} />}
-          contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+          contentContainerStyle={[
+            styles.listContent,
+            pinnedNotes.length === 0 && styles.emptyListContent
+          ]}
           numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          columnWrapperStyle={pinnedNotes.length > 0 ? { justifyContent: 'space-between' } : undefined}
           ListEmptyComponent={
             <EmptyState 
               icon="bookmark-outline" 
@@ -79,6 +82,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: '800',
+  },
+  listContent: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  emptyListContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 60,
   },
 });
 

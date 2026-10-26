@@ -122,9 +122,12 @@ const HomeScreen = () => {
             data={filteredNotes}
             keyExtractor={item => item.id}
             renderItem={({ item, index }) => <NoteCard item={item} index={index} onPress={() => openNote(item)} />}
-            contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+            contentContainerStyle={[
+              styles.listContent,
+              filteredNotes.length === 0 && styles.emptyListContent
+            ]}
             numColumns={2}
-            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            columnWrapperStyle={filteredNotes.length > 0 ? { justifyContent: 'space-between' } : undefined}
             ListEmptyComponent={
               <EmptyState 
                 icon={searchQuery ? "search-outline" : "document-text-outline"}
@@ -221,6 +224,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 8,
+  },
+  listContent: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  emptyListContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 80,
   },
 });
 
